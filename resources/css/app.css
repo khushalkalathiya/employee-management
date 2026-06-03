@@ -1,3 +1,268 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* ─────────────────────────────────────────
+    Base
+───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+    font-family: 'Manrope', sans-serif;
+    transition: background 0.45s ease, color 0.45s ease;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+h1,h2,h3,.font-display { font-family: 'Outfit', sans-serif; }
+
+/* ─── CSS custom properties per theme ─── */
+:root {
+    --bg:          #f1f5fb;
+    --card:        #ffffff;
+    --border:      rgba(37,99,235,0.14);
+    --text:        #0f172a;
+    --muted:       #64748b;
+    --inp-bg:      #f8faff;
+    --inp-border:  rgba(37,99,235,0.20);
+    --inp-focus:   rgba(37,99,235,0.15);
+    --placeholder: rgba(100,116,139,0.65);
+}
+.dark {
+    --bg:          #080c1a;
+    --card:        #0f1628;
+    --border:      rgba(59,130,246,0.18);
+    --text:        #e2e8f0;
+    --muted:       #94a3b8;
+    --inp-bg:      rgba(255,255,255,0.04);
+    --inp-border:  rgba(59,130,246,0.22);
+    --inp-focus:   rgba(59,130,246,0.18);
+    --placeholder: rgba(148,163,184,0.55);
+}
+
+body { background: var(--bg); color: var(--text); }
+
+/* ─── Background gradient ─── */
+.bg-gradient-page {
+    background:
+    radial-gradient(ellipse 70% 55% at 15% 20%, rgba(37,99,235,0.08)  0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 85% 80%, rgba(99,102,241,0.07) 0%, transparent 70%),
+    var(--bg);
+    transition: background 0.45s;
+}
+.dark .bg-gradient-page {
+    background:
+    radial-gradient(ellipse 70% 55% at 15% 20%, rgba(30,58,138,0.35)  0%, transparent 70%),
+    radial-gradient(ellipse 60% 50% at 85% 80%, rgba(49,46,129,0.28)  0%, transparent 70%),
+    var(--bg);
+}
+
+/* ─── Glassmorphism card ─── */
+.glass-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 40px rgba(37,99,235,0.10), 0 2px 8px rgba(0,0,0,0.06);
+    transition: background 0.45s, border-color 0.45s, box-shadow 0.45s;
+}
+.dark .glass-card {
+    box-shadow: 0 8px 40px rgba(0,0,0,0.50), 0 2px 8px rgba(0,0,0,0.30);
+}
+
+/* ─── Input field ─── */
+.field-input {
+    width: 100%;
+    padding: 13px 44px 13px 44px;
+    background: var(--inp-bg);
+    border: 1.5px solid var(--inp-border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: 'Manrope', sans-serif;
+    font-size: 14.5px;
+    outline: none;
+    transition: border-color 0.25s, box-shadow 0.25s, background 0.3s;
+}
+.field-input::placeholder { color: var(--placeholder); }
+.field-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 4px var(--inp-focus);
+}
+.field-input.error {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 4px rgba(239,68,68,0.15);
+}
+
+/* ─── Field label ─── */
+.field-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11.5px;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: block;
+    margin-bottom: 7px;
+    transition: color 0.3s;
+    text-align: left;
+}
+
+/* ─── Icon inside input ─── */
+.field-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--muted);
+    transition: color 0.22s;
+}
+.field-wrap:focus-within .field-icon { color: #3b82f6; }
+
+/* ─── Eye toggle button ─── */
+.eye-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    color: var(--muted);
+    transition: color 0.2s;
+    line-height: 0;
+}
+.eye-toggle:hover { color: #3b82f6; }
+
+/* ─── Primary button ─── */
+.btn-primary {
+    width: 100%;
+    padding: 14px 24px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 55%, #1d4ed8 100%);
+    border-radius: 12px;
+    border: none;
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(37,99,235,0.40);
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+.btn-primary::before {
+    /* Shimmer sweep */
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 55%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+    animation: shimmer 2.8s ease-in-out infinite;
+}
+.btn-primary:hover  { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(37,99,235,0.55); }
+.btn-primary:active { transform: translateY(0);    box-shadow: 0 4px 20px rgba(37,99,235,0.40); }
+.btn-primary:disabled { opacity: 0.75; cursor: not-allowed; transform: none; }
+
+/* ─── Dark-mode toggle pill ─── */
+.toggle-pill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    border-radius: 99px;
+    cursor: pointer;
+    border: 1.5px solid var(--border);
+    background: var(--inp-bg);
+    color: var(--muted);
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.3s, border-color 0.3s, color 0.3s, transform 0.2s;
+    user-select: none;
+}
+.toggle-pill:hover { transform: scale(1.04); color: #3b82f6; border-color: #3b82f6; }
+
+/* ─── Error message ─── */
+.err-msg {
+    display: none;
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 5px;
+    font-weight: 500;
+}
+.err-msg.show { display: flex; align-items: center; gap: 4px; }
+
+/* ─── Divider ─── */
+.divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+}
+
+/* ─── Badge chip ─── */
+.badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px;
+    border-radius: 99px;
+    font-family: 'Outfit', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(37,99,235,0.10);
+    border: 1px solid rgba(37,99,235,0.22);
+    color: #2563eb;
+}
+.dark .badge {
+    background: rgba(59,130,246,0.12);
+    border-color: rgba(59,130,246,0.28);
+    color: #60a5fa;
+}
+
+/* ─── SSO button ─── */
+.btn-sso {
+    width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 13px 20px;
+    background: var(--inp-bg);
+    border: 1.5px solid var(--inp-border);
+    border-radius: 12px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, transform 0.2s;
+}
+.btn-sso:hover { border-color: #3b82f6; transform: translateY(-1px); }
+
+/* ─── Custom checkbox ─── */
+.cb-custom input { display: none; }
+.cb-box {
+    width: 18px; height: 18px;
+    border: 1.5px solid var(--inp-border);
+    border-radius: 5px;
+    background: var(--inp-bg);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; flex-shrink: 0;
+    transition: background 0.2s, border-color 0.2s;
+}
+.cb-custom input:checked + .cb-box { background: #2563eb; border-color: #2563eb; }
+.cb-tick { display: none; }
+.cb-custom input:checked + .cb-box .cb-tick { display: block; }
+
+/* ─── Stagger delays ─── */
+.d1{animation-delay:.06s} .d2{animation-delay:.13s} .d3{animation-delay:.20s}
+.d4{animation-delay:.27s} .d5{animation-delay:.34s} .d6{animation-delay:.42s}
+.d7{animation-delay:.50s} .d8{animation-delay:.58s}
+
+/* ─── BG vector illustration opacity ─── */
+.bg-vectors { opacity: 0.06; pointer-events: none; user-select: none; }
+.dark .bg-vectors { opacity: 0.05; }
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+    .glass-card { margin: 16px; }
+}
