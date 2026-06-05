@@ -1,10 +1,10 @@
 <x-guest-layout>
     <main class="relative z-10 flex flex-1 items-center justify-center px-4 py-8" role="main">
 
-        <div class="glass-card w-full max-w-md animate-scaleIn rounded-3xl p-8 sm:p-10">
+        <div class="glass-card animate-scaleIn w-full max-w-md rounded-3xl p-8 sm:p-10">
 
             <!-- ── Branding header ── -->
-            <div class="d1 mb-8 animate-fadeUp text-center">
+            <div class="d1 animate-fadeUp mb-8 text-center">
                 <div aria-hidden="true" class="mb-4 inline-flex h-16 w-16 items-center justify-center rounded-2xl"
                     style="background:linear-gradient(135deg,#3b82f6,#1d4ed8);box-shadow:0 8px 28px rgba(37,99,235,0.40);">
                     <svg fill="none" height="32" viewBox="0 0 32 32" width="32"
@@ -60,8 +60,22 @@
                                 class="field-input" id="pwInput" name="password" placeholder="Enter your password"
                                 required type="password" />
 
-                            <button aria-label="Toggle password visibility" class="eye-toggle" id="eyeBtn"
-                                onclick="togglePassword()" type="button"></button>
+                            <button aria-label="Show password" class="eye-toggle" id="eyeBtn"
+                                onclick="togglePassword()" type="button">
+                                <svg fill="none" height="18" id="eyeShow" stroke-width="2" stroke="currentColor"
+                                    viewBox="0 0 24 24" width="18">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
+                                    <circle cx="12" cy="12" r="3" />
+                                </svg>
+                                <svg fill="none" height="18" id="eyeHide" stroke-width="2" stroke="currentColor"
+                                    style="display:none" viewBox="0 0 24 24" width="18">
+                                    <path
+                                        d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5 20 1 12 1 12a21.8 21.8 0 0 1 5.06-6.94" />
+                                    <path
+                                        d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.8 21.8 0 0 1-4.24 5.94" />
+                                    <path d="M1 1l22 22" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
                     @if ($errors)
@@ -76,7 +90,7 @@
                         @endforeach
                     @endif
 
-                    <div class="d4 flex animate-fadeUp items-center justify-between">
+                    <div class="d4 animate-fadeUp flex items-center justify-between">
                         <label class="cb-custom flex cursor-pointer select-none items-center gap-2.5">
                             <input aria-label="Remember me" id="remember" name="remember" type="checkbox" />
                             <div class="cb-box">
@@ -104,7 +118,7 @@
                     </div>
                 </form>
 
-                <div class="d8 mt-7 animate-fadeUp pt-5" style="border-top:1px solid var(--border);">
+                <div class="d8 animate-fadeUp mt-7 pt-5" style="border-top:1px solid var(--border);">
                     <p class="text-center text-xs" style="color:var(--muted);">
                         Need access?
                         <a class="font-medium text-blue-500 hover:underline" href="#"
