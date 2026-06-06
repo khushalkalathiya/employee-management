@@ -12,9 +12,9 @@ if (! function_exists('auth_user')) {
 
 }
 
-if (! function_exists('user_id')) {
+if (! function_exists('authId')) {
 
-    function user_id(): ?int
+    function authId(): ?int
     {
         return Auth::id();
     }
@@ -35,15 +35,6 @@ if (! function_exists('has_role')) {
     function has_role(string $role): bool
     {
         return Auth::user()?->hasRole($role) ?? false;
-    }
-
-}
-
-if (! function_exists('is_admin')) {
-
-    function is_admin(): bool
-    {
-        return has_role('Admin');
     }
 
 }

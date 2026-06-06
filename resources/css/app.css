@@ -211,11 +211,6 @@ h4,
 }
 .field-wrap:focus-within .field-icon { color: #3b82f6; }
 
-select,
-option {
-    background: var(--card);
-    color: var(--text);
-}
 
 /* ─── Eye toggle button ─── */
 .eye-toggle {
@@ -686,20 +681,18 @@ option {
 
 /* Theme toggle pill */
 .theme-pill {
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-xs);
+    background: var(--inp-bg);
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 99px;
-    background: var(--inp-bg);
-    border: 1.5px solid var(--border);
+    justify-content: center;
     cursor: pointer;
     color: var(--muted);
-    font-family: 'Outfit', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    transition: all .2s;
-    user-select: none;
+    position: relative;
+    transition: background .2s, color .2s, border-color .2s;
 }
 
 .theme-pill:hover {
@@ -1510,4 +1503,100 @@ option {
     .search-wrap {
         display: none
     }
+}
+
+.peer:checked + div svg,
+.permission-checkbox:checked + div svg,
+.module-checkbox:checked + div svg {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.peer + div svg,
+.permission-checkbox + div svg,
+.module-checkbox + div svg {
+    opacity: 0;
+    transform: scale(.75);
+}
+
+select,
+option {
+    background: var(--card);
+    color: var(--text);
+}
+
+/* ==========================================
+   Tom Select - Match Field Input Theme
+========================================== */
+
+.ts-wrapper {
+    width: 100%;
+    padding: 0px;
+}
+
+.ts-wrapper .ts-control {
+    line-height: 1.5;
+    min-height: 46px;
+    padding: 10px 13px;
+    background: var(--inp-bg) !important;
+    border: 1.5px solid var(--inp-border) !important;
+    border-radius: 12px !important;
+    color: var(--text) !important;
+    box-shadow: none !important;
+    transition: border-color .25s, box-shadow .25s, background .3s;
+}
+
+.ts-wrapper.focus .ts-control,
+.ts-wrapper.input-active .ts-control {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 4px var(--inp-focus) !important;
+}
+
+.ts-wrapper .item,
+.ts-wrapper .ts-control input {
+    color: var(--text) !important;
+    font-size: 14.5px;
+    font-family: 'Manrope', sans-serif;
+}
+
+.ts-wrapper .ts-control input::placeholder {
+    color: var(--placeholder) !important;
+}
+
+.ts-dropdown {
+    background: var(--card) !important;
+    border: 1px solid var(--inp-border) !important;
+    border-radius: 12px !important;
+    overflow: hidden;
+    margin-top: 6px;
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.12);
+}
+
+.ts-dropdown .option {
+    padding: 10px 14px !important;
+    color: var(--text) !important;
+    transition: .15s !important;
+    border-bottom: 0.5px solid var(--inp-border);
+}
+
+.ts-dropdown .option:hover,
+.ts-dropdown .active {
+    background: rgba(59,130,246,.18) !important;
+}
+
+.ts-dropdown .selected {
+    background: rgba(59,130,246,.18) !important;
+}
+
+.dark .ts-dropdown {
+    background: var(--card) !important;
+}
+
+.dark .ts-dropdown .option {
+    color: var(--text) !important;
+}
+
+.dark .ts-wrapper .ts-control {
+    background: var(--inp-bg) !important;
 }

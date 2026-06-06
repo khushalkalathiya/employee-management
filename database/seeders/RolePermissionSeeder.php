@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Role;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
 class RolePermissionSeeder extends Seeder
@@ -14,27 +14,22 @@ class RolePermissionSeeder extends Seeder
     public function run(): void
     {
         $roles = [
-            'superadmin',
-            'admin',
-            'hr',
-            'manager',
-            'employee',
+            'superadmin' => 'Super Admin',
+            'admin'      => 'Admin',
+            'hr'         => 'HR',
+            'manager'    => 'Manager',
+            'employee'   => 'Employee',
         ];
 
-        foreach ($roles as $role) {
-            Role::firstOrCreate([
-                'name' => $role,
+        foreach ($roles as $name => $displayName) {
+            Role::create([
+                'name' => $name,
                 'guard_name' => 'web',
+                'display_name' => $displayName,
             ]);
         }
-
+        
         $permissions = [
-
-            // Users
-            'user.view',
-            'user.create',
-            'user.edit',
-            'user.delete',
 
             // Roles
             'role.view',
@@ -47,6 +42,18 @@ class RolePermissionSeeder extends Seeder
             'employee.create',
             'employee.edit',
             'employee.delete',
+
+            // Departments
+            'department.view',
+            'department.create',
+            'department.edit',
+            'department.delete',
+
+            // Designations
+            'designation.view',
+            'designation.create',
+            'designation.edit',
+            'designation.delete',
         ];
 
         foreach ($permissions as $permission) {

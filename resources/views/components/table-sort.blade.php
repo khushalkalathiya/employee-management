@@ -1,6 +1,5 @@
-@props(['field', 'label'])
-
-<th>
+@props(['field', 'label', 'sortField' => '', 'sortDirection' => 'asc', 'extraSortClass' => ''])
+<th class="{{ $extraSortClass ?? '' }}">
     <button class="group flex items-center gap-1 transition" wire:click="sortBy('{{ $field }}')">
 
         <span class="table-th">

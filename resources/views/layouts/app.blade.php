@@ -65,34 +65,48 @@
                     <span class="nav-tooltip">Dashboard</span>
                 </a>
 
-                <a class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}"
-                    href="{{ route('users.index') }}">
+                <a class="nav-item {{ request()->routeIs('employees.*') ? 'active' : '' }}"
+                    href="{{ route('employees.index') }}">
                     <span class="nav-icon">
                         <svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
                             <path
                                 d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 15.17 10.33 14 8 14zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
                         </svg>
                     </span>
-                    <span class="nav-label">Users</span>
-                </a>
-
-                <a class="nav-item" href="#" onclick="setActive(this);return false">
-                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
-                            <path
-                                d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 15.17 10.33 14 8 14zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-                        </svg></span>
                     <span class="nav-label">Employees</span>
-                    <span class="nav-badge">248</span>
-                    <span class="nav-tooltip">Employees</span>
                 </a>
 
-                <a class="nav-item" href="#" onclick="setActive(this);return false">
+                <a class="nav-item {{ request()->routeIs('roles.*') ? 'active' : '' }}"
+                    href="{{ route('roles.index') }}">
+                    <span class="nav-icon">
+                        <svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
+                            <path
+                                d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18L19 6.3V11c0 4.54-2.88 8.79-7 10-4.12-1.21-7-5.46-7-10V6.3l7-3.12zM11 7h2v6h-2V7zm0 8h2v2h-2v-2z" />
+                        </svg>
+                    </span>
+                    <span class="nav-label">Roles & Permission</span>
+                </a>
+
+                <div class="sb-section-label">Organization</div>
+
+                <a class="nav-item {{ request()->routeIs('departments.*') ? 'active' : '' }}"
+                    href="{{ route('departments.index') }}">
                     <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
                             <path
                                 d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z" />
                         </svg></span>
                     <span class="nav-label">Departments</span>
                     <span class="nav-tooltip">Departments</span>
+                </a>
+
+                <a class="nav-item {{ request()->routeIs('designations.*') ? 'active' : '' }}"
+                    href="{{ route('designations.index') }}">
+                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
+                            <path
+                                d="M20 6h-8.18l-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V6h5l2 2h9v10z" />
+                        </svg></span>
+                    <span class="nav-label">Designations</span>
+                    <span class="nav-tooltip">Designations</span>
                 </a>
 
                 <div class="sb-section-label">Workforce</div>
@@ -107,7 +121,8 @@
                 </a>
 
                 <a class="nav-item" href="#" onclick="setActive(this);return false">
-                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
+                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24"
+                            width="18">
                             <path
                                 d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
                         </svg></span>
@@ -174,7 +189,7 @@
 
             </div>
 
-            <!-- Sidebar user -->
+            <!-- Sidebar employee -->
             <div
                 style="border-top:1px solid var(--border);padding:12px 10px;display:flex;align-items:center;gap:10px;overflow:hidden">
                 <div class="avatar" style="width:34px;height:34px;font-size:13px;flex-shrink:0">JD</div>
@@ -245,7 +260,6 @@
                             <path
                                 d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z" />
                         </svg>
-                        <span id="themeLabel">Dark</span>
                     </button>
 
                     <!-- Profile -->
