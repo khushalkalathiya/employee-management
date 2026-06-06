@@ -8,7 +8,12 @@ class LeaveType extends Model
 {
     protected $fillable = [
         'name',
-        'days_per_year',
-        'is_active',
+        'monthly_limit',
+        'description',
     ];
+
+    public function leaveRequests()
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
 }

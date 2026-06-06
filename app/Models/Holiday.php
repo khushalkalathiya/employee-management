@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Holiday extends Model
 {
     protected $fillable = [
-        'title',
-        'holiday_date',
-        'description',
+        'name',
+        'start_date',
+        'end_date',
+        'start_time',
+        'end_time',
+        'notes',
     ];
-
 }

@@ -474,11 +474,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         const placeholder = element.dataset.placeholder || element.querySelector('option[value=""]')?.textContent?.trim() || 'Select option';
-        new TomSelect(element, {
+        const ts = new TomSelect(element, {
             create: false,
             allowEmptyOption: true,
             placeholder,
         });
+
+        if (element.value) {
+            ts.setValue(element.value, true);
+        } else {
+            ts.clear(true);
+        }
 
     });
 });

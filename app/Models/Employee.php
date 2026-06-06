@@ -8,16 +8,24 @@ class Employee extends Model
 {
     protected $fillable = [
         'user_id',
+        'employee_code',
         'department_id',
         'designation_id',
-        'employee_code',
+        'gender', // male, female, other
         'date_of_birth',
+        'marital_status', // single, married, divorced, widowed
+        'alternate_phone',
         'joining_date',
         'probation_end_date',
-        'salary',
+        'employment_type', // permanent, contract, intern, freelancer
+        'reporting_manager_id', // user_id
+        'status', // integer : active, probation, notice, resigned, terminated
+        'current_salary',
         'address',
-        'emergency_contact_name',
-        'emergency_contact_phone',
+        'city',
+        'state',
+        'country',
+        'postal_code',
     ];
 
     public function user()
@@ -35,4 +43,49 @@ class Employee extends Model
         return $this->belongsTo(Designation::class);
     }
 
+    public function familyInformation()
+    {
+        return $this->hasOne(FamilyInformation::class);
+    }
+
+    public function experiences()
+    {
+        return $this->hasMany(Experience::class);
+    }
+
+    public function education()
+    {
+        return $this->hasMany(Education::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
+    }
+
+    public function salaries()
+    {
+        return $this->hasMany(Salary::class);
+    }
+
+    public function bankAccounts()
+    {
+        return $this->hasMany(BankAccount::class);
+    }
+
+    public function assets()
+    {
+        return $this->hasMany(Asset::class);
+    }
+
+    public function leaveRequests()
+    {
+        return $this->hasMany(LeaveRequest::class);
+    }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
 }
+

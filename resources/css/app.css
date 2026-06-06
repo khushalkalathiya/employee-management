@@ -586,6 +586,7 @@ h4,
     transition: margin-left .35s cubic-bezier(.22, 1, .36, 1);
     display: flex;
     flex-direction: column;
+    overflow: auto;
 }
 
 .sidebar.collapsed~.main-area {
@@ -716,21 +717,6 @@ h4,
 
 .profile-btn:hover {
     border-color: rgba(37, 99, 235, .30)
-}
-
-.avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #3b82f6, #6366f1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Outfit', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    color: white;
-    flex-shrink: 0;
 }
 
 .profile-name {
@@ -1457,6 +1443,18 @@ h4,
 }
 
 /* breadcrumb */
+.breadcrumbs {
+    display:flex;
+    align-items:center;
+    gap:2px;
+    min-width:0;
+}
+@media(max-width:640px) {
+    .breadcrumbs {
+        display: none;
+    }
+}
+
 .bc-sep {
     color: var(--muted2);
     font-size: 12px;
@@ -1536,8 +1534,8 @@ option {
 
 .ts-wrapper .ts-control {
     line-height: 1.5;
-    min-height: 46px;
-    padding: 10px 13px;
+    min-height: 42px;
+    padding: 9px 13px;
     background: var(--inp-bg) !important;
     border: 1.5px solid var(--inp-border) !important;
     border-radius: 12px !important;

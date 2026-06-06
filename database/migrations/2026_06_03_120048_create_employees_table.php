@@ -14,16 +14,24 @@ return new class extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->string('employee_code')->unique();
             $table->foreignId('department_id')->nullable()->constrained()->cascadeOnDelete();
             $table->foreignId('designation_id')->nullable()->constrained()->cascadeOnDelete();
-            $table->string('employee_code')->unique();
+            $table->string('gender')->nullable();
             $table->date('date_of_birth')->nullable();
-            $table->date('joining_date');
+            $table->string('marital_status')->nullable();
+            $table->string('alternate_phone')->nullable();
+            $table->date('joining_date')->nullable();
             $table->date('probation_end_date')->nullable();
-            $table->integer('salary')->nullable();
+            $table->string('employment_type')->nullable();
+            $table->foreignId('reporting_manager_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->integer('status')->default(1);
+            $table->decimal('current_salary', 12, 4)->default(0);
             $table->text('address')->nullable();
-            $table->string('emergency_contact_name')->nullable();
-            $table->string('emergency_contact_phone')->nullable();
+            $table->string('city')->nullable();
+            $table->string('state')->nullable();
+            $table->string('country')->nullable();
+            $table->string('postal_code')->nullable();
             $table->timestamps();
         });
     }

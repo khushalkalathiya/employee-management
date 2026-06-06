@@ -129,10 +129,8 @@
                     <label class="field-label">Role <span class="text-red-400">*</span></label>
                     <div class="field-wrap relative">
                         <select
-                            class="field-input appearance-none border border-[var(--border)] bg-[var(--card)] text-[var(--text)]"
-                            name="role" required>
-                            <option value="">Select Role</option>
-
+                            class="field-input tom-select appearance-none border border-[var(--border)] bg-[var(--card)] text-[var(--text)]"
+                            data-placeholder="Select Role" name="role" required>
                             @foreach ($roles as $id => $role)
                                 <option @selected(old('role') == $role) value="{{ $role }}">
                                     {{ ucfirst($role) }}

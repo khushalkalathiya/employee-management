@@ -26,9 +26,9 @@ class User extends Authenticatable implements HasMedia
         'email',
         'phone',
         'joining_date',
-        'gender',
         'password',
         'is_active',
+        'last_login_at',
     ];
 
     public function registerMediaCollections(): void

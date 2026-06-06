@@ -218,7 +218,7 @@
                     </button>
 
                     <!-- Breadcrumb -->
-                    <div style="display:flex;align-items:center;gap:2px;min-width:0">
+                    <div class="breadcrumbs">
                         <span class="bc-item">EMS</span>
                         <span class="bc-sep">›</span>
                         <span class="bc-item active" id="bcActive">Dashboard</span>
@@ -266,7 +266,9 @@
                     <div style="position:relative">
                         <div aria-expanded="false" aria-haspopup="true" class="profile-btn" id="profileBtn"
                             onclick="toggleDropdown()" role="button" tabindex="0">
-                            <div class="avatar">JD</div>
+                            <div
+                                class="emp-avatar flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-700 text-sm font-semibold text-white">
+                                JD</div>
                             <div style="line-height:1.2">
                                 <div class="profile-name">James Doe</div>
                                 <div class="profile-role">HR Admin</div>

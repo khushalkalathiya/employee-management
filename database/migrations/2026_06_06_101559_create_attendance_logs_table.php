@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('leave_types', function (Blueprint $table) {
+        Schema::create('attendance_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->integer('days_per_year')->default(0);
-            $table->boolean('is_active')->default(true);
+            $table->foreignId('attendance_id')->constrained()->cascadeOnDelete();
+            $table->string('action_type');
+            $table->dateTime('action_time');
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('leave_types');
+        Schema::dropIfExists('attendance_logs');
     }
 };
