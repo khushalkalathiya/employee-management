@@ -56,8 +56,8 @@
 
                 <div class="sb-section-label">Main</div>
 
-                <a class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}" href="#"
-                    onclick="setActive(this);return false">
+                <a class="nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}"
+                    href="{{ route('dashboard') }}" onclick="setActive(this);return false">
                     <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
                             <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
                         </svg></span>
@@ -109,10 +109,31 @@
                     <span class="nav-tooltip">Designations</span>
                 </a>
 
+                <a class="nav-item {{ request()->routeIs('leave-types.*') ? 'active' : '' }}"
+                    href="{{ route('leave-types.index') }}">
+                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
+                            <path
+                                d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z" />
+                        </svg></span>
+                    <span class="nav-label">Leave Types</span>
+                    <span class="nav-tooltip">Leave Types</span>
+                </a>
+
+                <a class="nav-item {{ request()->routeIs('holidays.*') ? 'active' : '' }}"
+                    href="{{ route('holidays.index') }}">
+                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
+                            <path
+                                d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
+                        </svg></span>
+                    <span class="nav-label">Holidays</span>
+                    <span class="nav-tooltip">Holidays</span>
+                </a>
+
                 <div class="sb-section-label">Workforce</div>
 
                 <a class="nav-item" href="#" onclick="setActive(this);return false">
-                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
+                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24"
+                            width="18">
                             <path
                                 d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
                         </svg></span>
@@ -307,13 +328,17 @@
                                 Change Password
                             </div>
                             <div class="dd-divider"></div>
-                            <div class="dd-item danger" role="menuitem">
-                                <svg fill="currentColor" height="15" viewBox="0 0 24 24" width="15">
-                                    <path
-                                        d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
-                                </svg>
-                                Logout
-                            </div>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+
+                                <button class="dd-item danger w-full text-left" role="menuitem" type="submit">
+                                    <svg fill="currentColor" height="15" viewBox="0 0 24 24" width="15">
+                                        <path
+                                            d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z" />
+                                    </svg>
+                                    Logout
+                                </button>
+                            </form>
                         </div>
                     </div>
 

@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Http\Requests\Department;
+namespace App\Http\Requests\LeaveType;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class UpdateDepartmentRequest extends FormRequest
+class UpdateLeaveTypeRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return has_permission('department.edit');
+        return has_permission('leave_type.edit');
     }
 
     /**
@@ -18,19 +18,17 @@ class UpdateDepartmentRequest extends FormRequest
      */
     public function rules(): array
     {
-        $department = $this->route('department');
+        $leaveType = $this->route('leave_type');
 
         return [
             'name' => [
                 'required',
                 'string',
                 'max:255',
-                Rule::unique('departments', 'name')
-                    ->whereNull('deleted_at')
-                    ->ignore($department),
+                Rule::unique('leave_types', 'name')->ignore($leaveType),
             ],
+            'monthly_limit' => ['nullable', 'integer', 'min:0'],
             'description' => ['nullable', 'string'],
-            'is_active' => ['nullable', 'boolean'],
         ];
     }
 }

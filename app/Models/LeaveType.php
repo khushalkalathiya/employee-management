@@ -12,6 +12,10 @@ class LeaveType extends Model
         'description',
     ];
 
+    protected $casts = [
+        'monthly_limit' => 'integer',
+    ];
+
     public function leaveRequests()
     {
         return $this->hasMany(LeaveRequest::class);

@@ -19,7 +19,6 @@ class StoreDesignationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            '_form' => ['nullable', 'string'],
             'department_id' => ['required', 'integer', Rule::exists('departments', 'id')->whereNull('deleted_at')],
             'name' => [
                 'required',

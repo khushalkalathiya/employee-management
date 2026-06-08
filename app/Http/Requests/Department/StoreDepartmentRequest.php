@@ -19,7 +19,6 @@ class StoreDepartmentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            '_form' => ['nullable', 'string'],
             'name' => ['required', 'string', 'max:255', Rule::unique('departments', 'name')->whereNull('deleted_at')],
             'description' => ['nullable', 'string'],
             'is_active' => ['nullable', 'boolean'],

@@ -21,8 +21,6 @@ class UpdateDesignationRequest extends FormRequest
         $designation = $this->route('designation');
 
         return [
-            '_form' => ['nullable', 'string'],
-            '_edit_id' => ['nullable', 'integer'],
             'department_id' => ['required', 'integer', Rule::exists('departments', 'id')->whereNull('deleted_at')],
             'name' => [
                 'required',

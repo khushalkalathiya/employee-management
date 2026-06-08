@@ -5,6 +5,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DesignationController;
+use App\Http\Controllers\LeaveTypeController;
+use App\Http\Controllers\HolidayController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ProfileController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -48,6 +50,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', [DesignationController::class, 'store'])->middleware('permission:designation.create')->name('store');
         Route::put('/{designation}', [DesignationController::class, 'update'])->middleware('permission:designation.edit')->name('update');
         Route::delete('/{designation}', [DesignationController::class, 'destroy'])->middleware('permission:designation.delete')->name('destroy');
+    });
+
+    Route::prefix('leave-types')->name('leave-types.')->group(function () {
+        Route::get('/', [LeaveTypeController::class, 'index'])->middleware('permission:leave_type.view')->name('index');
+        Route::post('/', [LeaveTypeController::class, 'store'])->middleware('permission:leave_type.create')->name('store');
+        Route::put('/{leave_type}', [LeaveTypeController::class, 'update'])->middleware('permission:leave_type.edit')->name('update');
+        Route::delete('/{leave_type}', [LeaveTypeController::class, 'destroy'])->middleware('permission:leave_type.delete')->name('destroy');
+    });
+
+    Route::prefix('holidays')->name('holidays.')->group(function () {
+        Route::get('/', [HolidayController::class, 'index'])->middleware('permission:holiday.view')->name('index');
+        Route::post('/', [HolidayController::class, 'store'])->middleware('permission:holiday.create')->name('store');
+        Route::put('/{holiday}', [HolidayController::class, 'update'])->middleware('permission:holiday.edit')->name('update');
+        Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->middleware('permission:holiday.delete')->name('destroy');
     });
 });
 

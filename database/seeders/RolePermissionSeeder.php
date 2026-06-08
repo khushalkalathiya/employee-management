@@ -54,7 +54,20 @@ class RolePermissionSeeder extends Seeder
             'designation.create',
             'designation.edit',
             'designation.delete',
+
+            // Leave Types
+            'leave_type.view',
+            'leave_type.create',
+            'leave_type.edit',
+            'leave_type.delete',
+
+            // Holidays
+            'holiday.view',
+            'holiday.create',
+            'holiday.edit',
+            'holiday.delete',
         ];
+
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate([

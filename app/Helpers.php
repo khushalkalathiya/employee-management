@@ -48,3 +48,12 @@ if (! function_exists('dateFormat')) {
         }
     }
 }
+if (! function_exists('timeFormat')) {
+    function timeFormat(mixed $time, string $format = 'h:i A') {
+        try {
+            return Carbon::parse($time)->format($format);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+}
