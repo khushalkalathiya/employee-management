@@ -109,16 +109,6 @@
                     <span class="nav-tooltip">Designations</span>
                 </a>
 
-                <a class="nav-item {{ request()->routeIs('leave-types.*') ? 'active' : '' }}"
-                    href="{{ route('leave-types.index') }}">
-                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
-                            <path
-                                d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z" />
-                        </svg></span>
-                    <span class="nav-label">Leave Types</span>
-                    <span class="nav-tooltip">Leave Types</span>
-                </a>
-
                 <a class="nav-item {{ request()->routeIs('holidays.*') ? 'active' : '' }}"
                     href="{{ route('holidays.index') }}">
                     <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
@@ -141,15 +131,29 @@
                     <span class="nav-tooltip">Attendance</span>
                 </a>
 
-                <a class="nav-item" href="#" onclick="setActive(this);return false">
-                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24"
-                            width="18">
+                @can('leave.view')
+                    <a class="nav-item {{ request()->routeIs('leaves.*') ? 'active' : '' }}"
+                        href="{{ route('leaves.index') }}">
+                        <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24"
+                                width="18">
+                                <path
+                                    d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
+                            </svg></span>
+                        <span class="nav-label">Leave Management</span>
+                        <span class="nav-tooltip">Leave Management</span>
+                    </a>
+                @endcan
+
+                <a class="nav-item {{ request()->routeIs('leave-types.*') ? 'active' : '' }}"
+                    href="{{ route('leave-types.index') }}">
+                    <span class="nav-icon">
+                        <svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
                             <path
-                                d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
-                        </svg></span>
-                    <span class="nav-label">Leave Management</span>
-                    <span class="nav-badge" style="background:rgba(239,68,68,.12);color:#ef4444">7</span>
-                    <span class="nav-tooltip">Leave Management</span>
+                                d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7v-5z" />
+                        </svg>
+                    </span>
+                    <span class="nav-label">Leave Types</span>
+                    <span class="nav-tooltip">Leave Types</span>
                 </a>
 
                 <a class="nav-item" href="#" onclick="setActive(this);return false">

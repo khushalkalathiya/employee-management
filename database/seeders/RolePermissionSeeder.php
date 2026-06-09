@@ -60,6 +60,13 @@ class RolePermissionSeeder extends Seeder
             'leave_type.create',
             'leave_type.edit',
             'leave_type.delete',
+            
+            // Leave Management Permissions
+            'leave.view',
+            'leave.create',
+            'leave.edit',
+            'leave.delete',
+            'leave.own',
 
             // Holidays
             'holiday.view',
@@ -79,7 +86,9 @@ class RolePermissionSeeder extends Seeder
         $superAdmin = Role::findByName('superadmin');
 
         $superAdmin->syncPermissions(
-            Permission::pluck('name')->toArray()
+            Permission::whereNotIn('name', [
+                'leave.own',
+            ])->get()
         );
     }
 }

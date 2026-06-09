@@ -7,6 +7,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\LeaveRequestController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ProfileController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -64,6 +65,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/', [HolidayController::class, 'store'])->middleware('permission:holiday.create')->name('store');
         Route::put('/{holiday}', [HolidayController::class, 'update'])->middleware('permission:holiday.edit')->name('update');
         Route::delete('/{holiday}', [HolidayController::class, 'destroy'])->middleware('permission:holiday.delete')->name('destroy');
+    });
+
+    Route::prefix('leaves')->name('leaves.')->group(function () {
+        Route::get('/', [LeaveRequestController::class, 'index'])->middleware('permission:leave.view')->name('index');
+        Route::post('/', [LeaveRequestController::class, 'store'])->middleware('permission:leave.create')->name('store');
+        Route::get('/{leave}', [LeaveRequestController::class, 'show'])->middleware('permission:leave.view')->name('show');
+        Route::put('/{leave}', [LeaveRequestController::class, 'update'])->middleware('permission:leave.edit')->name('update');
+        Route::delete('/{leave}', [LeaveRequestController::class, 'destroy'])->middleware('permission:leave.delete')->name('destroy');
+        Route::post('/{leave}/status', [LeaveRequestController::class, 'updateStatus'])->middleware('permission:leave.edit')->name('status.update');
     });
 });
 

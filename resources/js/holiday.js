@@ -18,6 +18,9 @@ window.holidayFormReset = function() {
 };
 
 window.toggleHolidayFields = function() {
+    if(!document.getElementById('holidayIsMultipleDays')){
+        return;
+    }
     const isMultiple = document.getElementById('holidayIsMultipleDays').checked;
     const isPartial = document.getElementById('holidayIsPartialDay').checked;
 
@@ -85,7 +88,6 @@ window.openHolidayModal = function(mode = 'create', holiday = {}) {
 document.addEventListener('click', function(event) {
     const editButton = event.target.closest('.js-edit-holiday');
     if (editButton) {
-        console.log(editButton.dataset);
         openHolidayModal('edit', editButton.dataset);
         return;
     }
@@ -100,16 +102,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     holidayStartDatePicker = flatpickr("#holidayStartDate", {
         enableTime: true,
-        dateFormat: "Y-m-d H:i",
-        time_24hr: true,
+        dateFormat: "Y-m-d H:i K",
+        time_24hr: false,
         monthSelectorType: "static",
         allowInput: true,
     });
 
     holidayEndDatePicker = flatpickr("#holidayEndDate", {
         enableTime: true,
-        dateFormat: "Y-m-d H:i",
-        time_24hr: true,
+        dateFormat: "Y-m-d H:i K",
+        time_24hr: false,
         monthSelectorType: "static",
         allowInput: true,
     });
@@ -117,16 +119,16 @@ document.addEventListener('DOMContentLoaded', () => {
     holidayStartTimePicker = flatpickr("#holidayStartTime", {
         enableTime: true,
         noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true,
+        dateFormat: "h:i K",
+        time_24hr: false,
         allowInput: true,
     });
 
     holidayEndTimePicker = flatpickr("#holidayEndTime", {
         enableTime: true,
         noCalendar: true,
-        dateFormat: "H:i",
-        time_24hr: true,
+        dateFormat: "h:i K",
+        time_24hr: false,
         allowInput: true,
     });
 

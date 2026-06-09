@@ -62,7 +62,7 @@
                                 Holiday Date <span class="text-red-400">*</span>
                             </label>
 
-                            <input class="field-input" id="holidayDate" name="holiday_date"
+                            <input autocomplete="off" class="field-input" id="holidayDate" name="holiday_date"
                                 placeholder="Select holiday date" type="text">
 
                             <p class="err-msg hidden"></p>
@@ -72,14 +72,14 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="field-label">Start Date</label>
-                                    <input class="field-input" id="holidayStartDate" name="start_date"
-                                        placeholder="Select start date & time" type="text">
+                                    <input autocomplete="off" class="field-input" id="holidayStartDate"
+                                        name="start_date" placeholder="Select start date & time" type="text">
                                     <p class="err-msg hidden"></p>
                                 </div>
 
                                 <div>
                                     <label class="field-label">End Date</label>
-                                    <input class="field-input" id="holidayEndDate" name="end_date"
+                                    <input autocomplete="off" class="field-input" id="holidayEndDate" name="end_date"
                                         placeholder="Select end date & time" type="text">
                                     <p class="err-msg hidden"></p>
                                 </div>
@@ -115,15 +115,15 @@
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
                                     <label class="field-label">Start Time</label>
-                                    <input class="field-input" id="holidayStartTime" name="start_time"
-                                        placeholder="Select start time" type="text">
+                                    <input autocomplete="off" class="field-input" id="holidayStartTime"
+                                        name="start_time" placeholder="Select start time" type="text">
                                     <p class="err-msg hidden"></p>
                                 </div>
 
                                 <div>
                                     <label class="field-label">End Time</label>
-                                    <input class="field-input" id="holidayEndTime" name="end_time"
-                                        placeholder="Select end time" type="text">
+                                    <input autocomplete="off" class="field-input" id="holidayEndTime"
+                                        name="end_time" placeholder="Select end time" type="text">
                                     <p class="err-msg hidden"></p>
                                 </div>
                             </div>

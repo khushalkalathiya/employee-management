@@ -13,15 +13,18 @@ return new class extends Migration
     {
         Schema::create('leave_requests', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('leave_type_id')->constrained()->cascadeOnDelete();
-            $table->date('start_date');
-            $table->date('end_date');
-            $table->integer('duration'); // 1 = full_day, 2 = first_half, 3 = second_half
+            $table->string('leave_mode')->default('full_day'); // ['full_day', 'multiple_days', 'half_day', 'hourly']
+            $table->dateTime('start_datetime');
+            $table->dateTime('end_datetime')->nullable();
+            $table->float('total_days')->nullable();
+            $table->float('total_hours')->nullable();
             $table->text('reason');
-            $table->string('status')->default('pending');
+            $table->integer('status')->default(0); // 0: pending, 1: approved, 2: rejected, 3: cancelled
             $table->foreignId('approved_by')->nullable()->constrained('users')->nullOnDelete();
             $table->timestamp('approved_at')->nullable();
+            $table->text('rejection_reason')->nullable();
             $table->timestamps();
         });
     }

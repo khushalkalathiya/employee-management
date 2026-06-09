@@ -88,6 +88,10 @@
                         </th>
 
                         <th class="table-th px-4 py-3 text-center">
+                            Own
+                        </th>
+
+                        <th class="table-th px-4 py-3 text-center">
                             Create
                         </th>
 
@@ -135,7 +139,7 @@
                                 </label>
                             </td>
 
-                            @foreach (['view', 'create', 'edit', 'delete'] as $action)
+                            @foreach (['view', 'own', 'create', 'edit', 'delete'] as $action)
                                 <td class="px-4 py-3 text-center">
 
                                     @if ($actions[$action])
@@ -217,6 +221,10 @@
                 `.permission-checkbox[data-module="${module}"][data-action="view"]`
             );
 
+            const own = document.querySelector(
+                `.permission-checkbox[data-module="${module}"][data-action="own"]`
+            );
+
             const create = document.querySelector(
                 `.permission-checkbox[data-module="${module}"][data-action="create"]`
             );
@@ -234,6 +242,7 @@
             }
 
             const hasOtherPermissions =
+                own?.checked ||
                 create?.checked ||
                 edit?.checked ||
                 del?.checked;

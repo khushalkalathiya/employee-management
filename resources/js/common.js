@@ -144,6 +144,7 @@ window.showToast = function (message, type = 'success') {
     setTimeout(removeToast, 5000);
 };
 
+window.csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 window.currentConfirmUrl = null;
 window.openConfirmModal = function ({title = 'Delete Record', description = 'Are you sure you would like to do this?', url = null,} = {}) {
     const modal = document.getElementById('deleteItemConfirmModel');

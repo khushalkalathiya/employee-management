@@ -14,3 +14,4 @@ import './department';
 import './designation';
 import './leave-type';
 import './holiday';
+import './leave';

@@ -31,6 +31,13 @@ class User extends Authenticatable implements HasMedia
         'last_login_at',
     ];
 
+    protected $appends = [
+        'full_name',
+        'initials',
+        'avatar',
+        'role',
+    ];
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('avatar')
@@ -41,6 +48,11 @@ class User extends Authenticatable implements HasMedia
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;
+    }
+    
+    public function getInitialsAttribute()
+    {
+        return substr($this->first_name, 0, 1) . substr($this->last_name, 0, 1);
     }
 
     public function getAvatarAttribute()

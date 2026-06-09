@@ -82,6 +82,7 @@ class RoleController extends Controller
             ->map(function ($permissions, $module) {
 
                 return [
+                    'own' => $permissions->firstWhere('name', strtolower($module) . '.own'),
                     'view' => $permissions->firstWhere('name', strtolower($module) . '.view'),
                     'create' => $permissions->firstWhere('name', strtolower($module) . '.create'),
                     'edit' => $permissions->firstWhere('name', strtolower($module) . '.edit'),

@@ -2,25 +2,31 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LeaveRequest extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'employee_id',
+        'user_id',
         'leave_type_id',
-        'start_date',
-        'end_date',
-        'duration',
+        'leave_mode',
+        'start_datetime',
+        'end_datetime',
+        'total_days',
+        'total_hours',
         'reason',
         'status',
         'approved_by',
         'approved_at',
+        'rejection_reason',
     ];
 
-    public function employee()
+    public function user()
     {
-        return $this->belongsTo(Employee::class);
+        return $this->belongsTo(User::class);
     }
 
     public function leaveType()
