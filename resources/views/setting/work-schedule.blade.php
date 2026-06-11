@@ -112,7 +112,7 @@
                                                     <input class="field-input js-time-picker"
                                                         name="{{ $day }}_start_time" placeholder="Start Time"
                                                         type="time"
-                                                        value="{{ old($day . '_start_time', $settings[$day . '_start_time'] ?? '') }}">
+                                                        value="{{ convertTimeTo24HourFormat(old($day . '_start_time', $settings[$day . '_start_time'] ?? '')) }}">
                                                 </div>
                                                 @error($day . '_start_time')
                                                     <p class="err-msg">{{ $message }}</p>
@@ -124,7 +124,7 @@
                                                     <input class="field-input js-time-picker"
                                                         name="{{ $day }}_end_time" placeholder="End Time"
                                                         type="time"
-                                                        value="{{ old($day . '_end_time', $settings[$day . '_end_time'] ?? '') }}">
+                                                        value="{{ convertTimeTo24HourFormat(old($day . '_end_time', $settings[$day . '_end_time'] ?? '')) }}">
                                                 </div>
                                                 @error($day . '_end_time')
                                                     <p class="err-msg">{{ $message }}</p>
@@ -162,7 +162,7 @@
                                                     <input class="field-input js-time-picker"
                                                         name="{{ $day }}_break_start"
                                                         placeholder="Break Start Time" type="time"
-                                                        value="{{ old($day . '_break_start', $settings[$day . '_break_start'] ?? '') }}">
+                                                        value="{{ convertTimeTo24HourFormat(old($day . '_break_start', $settings[$day . '_break_start'] ?? '')) }}">
                                                 </div>
                                                 @error($day . '_break_start')
                                                     <p class="err-msg">{{ $message }}</p>
@@ -174,7 +174,7 @@
                                                     <input class="field-input js-time-picker"
                                                         name="{{ $day }}_break_end"
                                                         placeholder="Break End Time" type="time"
-                                                        value="{{ old($day . '_break_end', $settings[$day . '_break_end'] ?? '') }}">
+                                                        value="{{ convertTimeTo24HourFormat(old($day . '_break_end', $settings[$day . '_break_end'] ?? '')) }}">
                                                 </div>
                                                 @error($day . '_break_end')
                                                     <p class="err-msg">{{ $message }}</p>

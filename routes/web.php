@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\EmployeeController;
@@ -81,6 +82,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{leave}', [LeaveRequestController::class, 'update'])->middleware('permission:leave.edit')->name('update');
         Route::delete('/{leave}', [LeaveRequestController::class, 'destroy'])->middleware('permission:leave.delete')->name('destroy');
         Route::post('/{leave}/status', [LeaveRequestController::class, 'updateStatus'])->middleware('permission:leave.edit')->name('status.update');
+    });
+
+    Route::prefix('attendance')->name('attendance.')->group(function () {
+        Route::get('/', [AttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('index');
+        Route::post('/check-in', [AttendanceController::class, 'checkIn'])->middleware('permission:attendance.create')->name('check-in');
+        Route::post('/break-start', [AttendanceController::class, 'breakStart'])->middleware('permission:attendance.create')->name('break-start');
+        Route::post('/break-end', [AttendanceController::class, 'breakEnd'])->middleware('permission:attendance.create')->name('break-end');
+        Route::post('/check-out', [AttendanceController::class, 'checkOut'])->middleware('permission:attendance.create')->name('check-out');
+        Route::get('/{attendance}', [AttendanceController::class, 'show'])->middleware('permission:attendance.view')->name('show');
+        Route::put('/{attendance}', [AttendanceController::class, 'update'])->middleware('permission:attendance.edit')->name('update');
+        Route::delete('/{attendance}', [AttendanceController::class, 'destroy'])->middleware('permission:attendance.delete')->name('destroy');
     });
 });
 

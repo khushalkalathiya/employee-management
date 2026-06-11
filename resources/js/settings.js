@@ -9,7 +9,6 @@ window.updateSummary = function (day) {
 
     const summary = document.querySelector(`.js-summary[data-day="${day}"]`);
 
-    console.log(summary);
     if (!summary) return;
 
     if (!start || !end) {
@@ -64,7 +63,7 @@ function setFlatPickerValues() {
         }
         input._flatpickr.setDate(value, false);
     });
-    
+
     ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].forEach(day => {
         updateSummary(day);
     });
@@ -73,7 +72,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.js-break-toggle').forEach(toggle => {
         toggle.addEventListener('change', () => {
             const breakSection = document.getElementById(toggle.dataset.day + 'Schedule')?.querySelector('.js-break-section');
-            console.log(breakSection);
             if (!breakSection) return;
             if (toggle.checked) {
                 breakSection.style.maxHeight = breakSection.scrollHeight + 'px';
@@ -107,10 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         minuteIncrement: 5,
         allowInput: true,
         onChange(selectedDates, dateStr, instance) {
-            console.log(selectedDates, dateStr, instance);
             const input = instance.input;
-            console.log(input.name);
-            console.log(dateStr);
             const day = input.name.split('_')[0];
             updateSummary(day);
         }

@@ -57,3 +57,14 @@ if (! function_exists('timeFormat')) {
         }
     }
 }
+if (! function_exists('convertTimeTo24HourFormat')) {
+    function convertTimeTo24HourFormat(?string $time): string
+    {
+        try {
+            return \Carbon\Carbon::createFromFormat('g:i A', $time)
+                ->format('H:i');
+        } catch (\Throwable $e) {
+            return '';
+        }
+    }
+}
