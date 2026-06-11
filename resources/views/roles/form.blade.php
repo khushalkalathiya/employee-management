@@ -107,7 +107,7 @@
 
                 <tbody>
 
-                    @foreach ($permissions as $module => $actions)
+                    @foreach ($crudPermissions as $module => $actions)
                         @php
                             $moduleSlug = Str::slug($module);
                         @endphp
@@ -176,9 +176,83 @@
                         </tr>
                     @endforeach
 
+                    @foreach ($otherPermissions as $module => $actions)
+                        @foreach ($actions as $subModule => $subActions)
+                            @php
+                                $moduleSlug = Str::slug($module . '_' . $subModule);
+                            @endphp
+                            <tr class="border-t border-[var(--border)] hover:bg-[var(--surface-hover)]">
+
+                                <td class="px-4 py-3 font-medium text-[var(--text)]">
+                                    {{ $module }} -> {{ $subModule }}
+                                </td>
+
+                                <td class="px-4 py-3 text-center">
+                                    <label class="inline-flex cursor-pointer items-center">
+
+                                        <input class="module-checkbox peer sr-only" data-module="{{ $moduleSlug }}"
+                                            type="checkbox">
+
+                                        <div
+                                            class="flex h-5 w-5 items-center justify-center rounded-md border border-gray-300 bg-white transition-all duration-200 peer-checked:border-blue-600 peer-checked:bg-blue-600 dark:border-gray-600 dark:bg-gray-800">
+
+                                            <svg class="h-3.5 w-3.5 text-white opacity-0 transition-all duration-200"
+                                                fill="none" stroke-width="3" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+
+                                                <path d="M5 13l4 4L19 7" stroke-linecap="round"
+                                                    stroke-linejoin="round" />
+
+                                            </svg>
+
+                                        </div>
+
+                                    </label>
+                                </td>
+
+                                @foreach (['view', 'own', 'create', 'edit', 'delete'] as $action)
+                                    <td class="px-4 py-3 text-center">
+
+                                        @if (isset($subActions[$action]))
+                                            <label class="inline-flex cursor-pointer items-center">
+
+                                                <input @checked(in_array($subActions[$action]->name, $selectedPermissions))
+                                                    class="permission-checkbox peer sr-only"
+                                                    data-action="{{ $action }}"
+                                                    data-module="{{ $moduleSlug }}" name="permissions[]"
+                                                    type="checkbox" value="{{ $subActions[$action]->name }}">
+
+                                                <div
+                                                    class="flex h-5 w-5 items-center justify-center rounded-md border border-gray-300 bg-white transition-all duration-200 peer-checked:border-blue-600 peer-checked:bg-blue-600 dark:border-gray-600 dark:bg-gray-800">
+
+                                                    <svg class="h-3.5 w-3.5 text-white opacity-0 transition-all duration-200"
+                                                        fill="none" stroke-width="3" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+
+                                                        <path d="M5 13l4 4L19 7" stroke-linecap="round"
+                                                            stroke-linejoin="round" />
+                                                    </svg>
+
+                                                </div>
+
+                                            </label>
+                                        @else
+                                            <span class="text-gray-400">
+                                                —
+                                            </span>
+                                        @endif
+
+                                    </td>
+                                @endforeach
+
+                            </tr>
+                        @endforeach
+                    @endforeach
+
                 </tbody>
 
             </table>
+
 
         </div>
 

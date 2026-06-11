@@ -21,8 +21,10 @@ class RoleController extends Controller
     public function create()
     {
         $permissions = $this->permissions();
+        $crudPermissions = $permissions['crud'];
+        $otherPermissions = $permissions['other'];
 
-        return view('roles.create', compact('permissions'));
+        return view('roles.create', compact('crudPermissions', 'otherPermissions'));
     }
 
     public function store(StoreRoleRequest $request, CreateRoleAction $action)
@@ -40,8 +42,10 @@ class RoleController extends Controller
     {
         $role->load('permissions');
         $permissions = $this->permissions();
+        $crudPermissions = $permissions['crud'];
+        $otherPermissions = $permissions['other'];
 
-        return view('roles.edit', compact('role', 'permissions'));
+        return view('roles.edit', compact('role', 'crudPermissions', 'otherPermissions'));
     }
 
     public function update(UpdateRoleRequest $request, Role $role, UpdateRoleAction $action)
@@ -71,24 +75,69 @@ class RoleController extends Controller
             ], 500);
         }
     }
-
+    
     private function permissions()
     {
-        return Permission::query()
-            ->get()
-            ->groupBy(fn (Permission $permission) => ucfirst(
-                str($permission->name)->before('.')->toString()
-            ))
-            ->map(function ($permissions, $module) {
+        $permissions = Permission::query()->get();
 
-                return [
-                    'own' => $permissions->firstWhere('name', strtolower($module) . '.own'),
-                    'view' => $permissions->firstWhere('name', strtolower($module) . '.view'),
-                    'create' => $permissions->firstWhere('name', strtolower($module) . '.create'),
-                    'edit' => $permissions->firstWhere('name', strtolower($module) . '.edit'),
-                    'delete' => $permissions->firstWhere('name', strtolower($module) . '.delete'),
-                ];
+        $otherModules = [
+            'dashboard',
+            'settings',
+        ];
 
-            });
+        return [
+            'crud' => $permissions
+                ->filter(function ($permission) use ($otherModules) {
+                    $module = str($permission->name)->before('.')->toString();
+
+                    return ! in_array($module, $otherModules);
+                })
+                ->groupBy(fn ($permission) => ucfirst(
+                    str($permission->name)->before('.')->toString()
+                ))
+                ->map(function ($permissions, $module) {
+
+                    return [
+                        'own'    => $permissions->firstWhere('name', strtolower($module) . '.own'),
+                        'view'   => $permissions->firstWhere('name', strtolower($module) . '.view'),
+                        'create' => $permissions->firstWhere('name', strtolower($module) . '.create'),
+                        'edit'   => $permissions->firstWhere('name', strtolower($module) . '.edit'),
+                        'delete' => $permissions->firstWhere('name', strtolower($module) . '.delete'),
+                    ];
+                }),
+
+            'other' => $permissions
+                ->filter(function ($permission) use ($otherModules) {
+                    $module = str($permission->name)->before('.')->toString();
+                    return in_array($module, $otherModules);
+                })
+                ->groupBy(fn ($permission) => ucfirst(
+                    str($permission->name)->before('.')->toString()
+                ))
+                ->map(function ($permissions) {
+
+                    return $permissions
+                        ->groupBy(function ($permission) {
+
+                            $parts = explode('.', $permission->name);
+
+                            return str($parts[1])
+                                ->replace('_', ' ')
+                                ->title();
+                        })
+                        ->map(function ($groupPermissions) {
+
+                            return [
+                                'own'    => $groupPermissions->first(fn ($p) => str($p->name)->endsWith('.own')),
+                                'view'   => $groupPermissions->first(fn ($p) => str($p->name)->endsWith('.view')),
+                                'create' => $groupPermissions->first(fn ($p) => str($p->name)->endsWith('.create')),
+                                'edit'   => $groupPermissions->first(fn ($p) => str($p->name)->endsWith('.edit')),
+                                'update' => $groupPermissions->first(fn ($p) => str($p->name)->endsWith('.update')),
+                                'delete' => $groupPermissions->first(fn ($p) => str($p->name)->endsWith('.delete')),
+                            ];
+                        });
+
+                }),
+        ];
     }
 }

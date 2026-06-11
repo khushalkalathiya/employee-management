@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreLeaveRequest;
-use App\Http\Requests\UpdateLeaveRequest;
+use App\Http\Requests\Leave\StoreLeaveRequest;
+use App\Http\Requests\Leave\UpdateLeaveRequest;
 use App\Models\LeaveRequest;
 use App\Actions\Leave\CreateLeaveRequestAction;
 use App\Actions\Leave\UpdateLeaveRequestAction;

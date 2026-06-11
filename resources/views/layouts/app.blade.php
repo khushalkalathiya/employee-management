@@ -76,17 +76,6 @@
                     <span class="nav-label">Employees</span>
                 </a>
 
-                <a class="nav-item {{ request()->routeIs('roles.*') ? 'active' : '' }}"
-                    href="{{ route('roles.index') }}">
-                    <span class="nav-icon">
-                        <svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
-                            <path
-                                d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18L19 6.3V11c0 4.54-2.88 8.79-7 10-4.12-1.21-7-5.46-7-10V6.3l7-3.12zM11 7h2v6h-2V7zm0 8h2v2h-2v-2z" />
-                        </svg>
-                    </span>
-                    <span class="nav-label">Roles & Permission</span>
-                </a>
-
                 <div class="sb-section-label">Organization</div>
 
                 <a class="nav-item {{ request()->routeIs('departments.*') ? 'active' : '' }}"
@@ -121,7 +110,7 @@
 
                 <div class="sb-section-label">Workforce</div>
 
-                <a class="nav-item" href="#" onclick="setActive(this);return false">
+                {{-- <a class="nav-item" href="#" onclick="setActive(this);return false">
                     <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24"
                             width="18">
                             <path
@@ -129,13 +118,12 @@
                         </svg></span>
                     <span class="nav-label">Attendance</span>
                     <span class="nav-tooltip">Attendance</span>
-                </a>
+                </a> --}}
 
                 @can('leave.view')
                     <a class="nav-item {{ request()->routeIs('leaves.*') ? 'active' : '' }}"
                         href="{{ route('leaves.index') }}">
-                        <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24"
-                                width="18">
+                        <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
                                 <path
                                     d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
                             </svg></span>
@@ -156,7 +144,7 @@
                     <span class="nav-tooltip">Leave Types</span>
                 </a>
 
-                <a class="nav-item" href="#" onclick="setActive(this);return false">
+                {{-- <a class="nav-item" href="#" onclick="setActive(this);return false">
                     <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24"
                             width="18">
                             <path
@@ -164,9 +152,9 @@
                         </svg></span>
                     <span class="nav-label">Payroll</span>
                     <span class="nav-tooltip">Payroll</span>
-                </a>
+                </a> --}}
 
-                <div class="sb-section-label">Projects</div>
+                {{-- <div class="sb-section-label">Projects</div>
 
                 <a class="nav-item" href="#" onclick="setActive(this);return false">
                     <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24"
@@ -188,7 +176,7 @@
                     <span class="nav-label">Tasks</span>
                     <span class="nav-badge" style="background:rgba(217,119,6,.12);color:#d97706">5</span>
                     <span class="nav-tooltip">Tasks</span>
-                </a>
+                </a> --}}
 
                 <div class="sb-section-label">System</div>
 
@@ -202,15 +190,42 @@
                     <span class="nav-tooltip">Reports</span>
                 </a>
 
-                <a class="nav-item" href="#" onclick="setActive(this);return false">
-                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24"
-                            width="18">
+                <a class="nav-item {{ request()->routeIs('roles.*') ? 'active' : '' }}"
+                    href="{{ route('roles.index') }}">
+                    <span class="nav-icon">
+                        <svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
                             <path
-                                d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" />
-                        </svg></span>
-                    <span class="nav-label">Settings</span>
-                    <span class="nav-tooltip">Settings</span>
+                                d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18L19 6.3V11c0 4.54-2.88 8.79-7 10-4.12-1.21-7-5.46-7-10V6.3l7-3.12zM11 7h2v6h-2V7zm0 8h2v2h-2v-2z" />
+                        </svg>
+                    </span>
+                    <span class="nav-label">Roles & Permission</span>
                 </a>
+
+                @php
+                    $settingsRoute = null;
+
+                    if (has_permission('settings.general.view')) {
+                        $settingsRoute = route('settings.general.index');
+                    } elseif (has_permission('settings.work_schedule.view')) {
+                        $settingsRoute = route('settings.work-schedule.index');
+                    }
+                @endphp
+
+                @if ($settingsRoute)
+                    <a class="nav-item {{ request()->routeIs('settings.*') ? 'active' : '' }}"
+                        href="{{ $settingsRoute }}">
+
+                        <span class="nav-icon">
+                            <svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
+                                <path
+                                    d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.07-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.74,8.87C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.07,0.94l-2.03,1.58c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.47-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z" />
+                            </svg>
+                        </span>
+
+                        <span class="nav-label">Settings</span>
+                        <span class="nav-tooltip">Settings</span>
+                    </a>
+                @endif
 
             </div>
 

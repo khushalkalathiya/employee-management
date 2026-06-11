@@ -390,6 +390,16 @@ window.closeMobileSidebar = function () {
     document.body.style.overflow = '';
 }
 
+window.openSubSidebarMenu = function() {
+    document.getElementById('settingsMobileMenu').classList.add('show');
+    document.getElementById('settingsOverlay').classList.add('show');
+}
+
+window.closeSubSidebarMenu = function() {
+    document.getElementById('settingsMobileMenu').classList.remove('show');
+    document.getElementById('settingsOverlay').classList.remove('show');
+}
+
 document.querySelectorAll('.image-upload').forEach((wrapper) => {
     const input = wrapper.querySelector('.image-input');
     const box = wrapper.querySelector('.upload-box');

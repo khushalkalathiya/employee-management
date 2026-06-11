@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Leave;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -46,7 +46,7 @@ class StoreLeaveRequest extends FormRequest
         $validator->after(function ($validator) {
 
             if ($this->leave_mode === 'multiple_days') {
-
+                
                 $start = \Carbon\Carbon::parse($this->start_datetime);
                 $end = \Carbon\Carbon::parse($this->end_datetime);
 

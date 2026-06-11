@@ -18,7 +18,8 @@
 
         @include('roles.form', [
             'role' => $role,
-            'permissions' => $permissions,
+            'crudPermissions' => $crudPermissions,
+            'otherPermissions' => $otherPermissions,
             'selectedPermissions' => old('permissions', $role->permissions->pluck('name')->toArray()),
         ])
 

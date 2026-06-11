@@ -73,6 +73,12 @@ class RolePermissionSeeder extends Seeder
             'holiday.create',
             'holiday.edit',
             'holiday.delete',
+
+            // Settings
+            'settings.general.view',
+            'settings.general.edit',
+            'settings.work_schedule.view',
+            'settings.work_schedule.edit',
         ];
 
 

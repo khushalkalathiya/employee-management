@@ -36,15 +36,11 @@
                             </span>
                             <input aria-describedby="emailError" aria-label="Email address" autocomplete="email"
                                 class="field-input" id="email" name="email" placeholder="you@company.com" required
-                                type="email" value="{{ old('email') ?? '' }}" />
+                                style="padding-left:38px;" type="email" value="{{ old('email') ?? '' }}" />
                         </div>
-                        <p class="err-msg" id="emailError" role="alert">
-                            <svg fill="currentColor" height="13" viewBox="0 0 24 24" width="13">
-                                <path
-                                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
-                            </svg>
-                            Please enter a valid email address.
-                        </p>
+                        @error('email')
+                            <p class="err-msg mt-2">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="d3 animate-fadeUp">
@@ -56,27 +52,29 @@
                                         d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
                                 </svg>
                             </span>
-                            <input aria-describedby="pwError" aria-label="Password" autocomplete="current-password"
-                                class="field-input" id="pwInput" name="password" placeholder="Enter your password"
-                                required type="password" />
-
-                            <button aria-label="Show password" class="eye-toggle" id="eyeBtn"
-                                onclick="togglePassword()" type="button">
-                                <svg fill="none" height="18" id="eyeShow" stroke-width="2" stroke="currentColor"
-                                    viewBox="0 0 24 24" width="18">
+                            <input class="field-input password-input" name="password" placeholder="Enter password"
+                                required style="padding-left:38px;" type="password" />
+                            <button class="eye-toggle" onclick="togglePassword(this)" type="button">
+                                <svg class="eye-show" fill="none" height="18" id="eyeShow" stroke-width="2"
+                                    stroke="currentColor" viewBox="0 0 24 24" width="18">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8S1 12 1 12z" />
                                     <circle cx="12" cy="12" r="3" />
                                 </svg>
-                                <svg fill="none" height="18" id="eyeHide" stroke-width="2" stroke="currentColor"
-                                    style="display:none" viewBox="0 0 24 24" width="18">
+                                <svg class="eye-hide" fill="none" height="18" id="eyeHide" stroke-width="2"
+                                    stroke="currentColor" style="display:none" viewBox="0 0 24 24" width="18">
                                     <path
                                         d="M17.94 17.94A10.94 10.94 0 0 1 12 20C5 20 1 12 1 12a21.8 21.8 0 0 1 5.06-6.94" />
                                     <path
                                         d="M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a21.8 21.8 0 0 1-4.24 5.94" />
                                     <path d="M1 1l22 22" />
                                 </svg>
+
                             </button>
+
                         </div>
+                        @error('password')
+                            <p class="err-msg">{{ $message }}</p>
+                        @enderror
                     </div>
                     @if ($errors)
                         @foreach ($errors as $error)
@@ -105,7 +103,7 @@
                     </div>
 
                     <div class="d5 animate-fadeUp pt-1">
-                        <button class="btn-primary" type="submit">
+                        <button class="btn-primary flex w-full items-center justify-center" type="submit">
                             <span class="relative z-10 flex items-center justify-center gap-2" id="btnContent">
                                 <svg aria-hidden="true" fill="currentColor" height="17" viewBox="0 0 24 24"
                                     width="17">
@@ -132,5 +130,6 @@
                     </p>
                 </div>
             </div>
+        </div>
     </main>
 </x-guest-layout>

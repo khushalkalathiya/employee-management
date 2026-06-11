@@ -10,7 +10,8 @@
 
         @include('roles.form', [
             'role' => null,
-            'permissions' => $permissions,
+            'crudPermissions' => $crudPermissions,
+            'otherPermissions' => $otherPermissions,
             'selectedPermissions' => old('permissions', []),
         ])
 
