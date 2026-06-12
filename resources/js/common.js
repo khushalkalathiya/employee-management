@@ -529,7 +529,10 @@ window.modalHelper = {
     }
 };
 
-
+window.openTimerModal = function () {
+    const modal = document.getElementById('timerFormModal');
+    modalHelper.open('timerFormModal');
+}
 
 
 

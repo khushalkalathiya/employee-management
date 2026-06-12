@@ -29,6 +29,26 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('/{employee}/edit', [EmployeeController::class, 'edit'])->middleware('permission:employee.edit')->name('edit');
         Route::put('/{employee}', [EmployeeController::class, 'update'])->middleware('permission:employee.edit')->name('update');
         Route::delete('/{employee}', [EmployeeController::class, 'destroy'])->middleware('permission:employee.delete')->name('destroy');
+        Route::prefix('/{employee}')->middleware('permission:employee.edit')->group(function () {
+            Route::get('/basic-information', [EmployeeController::class, 'editBasicInformation'])->name('basic-information.edit');
+            Route::put('/basic-information', [EmployeeController::class, 'updateBasicInformation'])->name('basic-information.update');
+            Route::get('/employment-details', [EmployeeController::class, 'editEmploymentDetails'])->name('employment-details.edit');
+            Route::put('/employment-details', [EmployeeController::class, 'updateEmploymentDetails'])->name('employment-details.update');
+            Route::get('/address-information', [EmployeeController::class, 'editAddressInformation'])->name('address-information.edit');
+            Route::put('/address-information', [EmployeeController::class, 'updateAddressInformation'])->name('address-information.update');
+            Route::get('/family-information', [EmployeeController::class, 'editFamilyInformation'])->name('family-information.edit');
+            Route::put('/family-information', [EmployeeController::class, 'updateFamilyInformation'])->name('family-information.update');
+            Route::get('/bank-details', [EmployeeController::class, 'editBankDetails'])->name('bank-details.edit');
+            Route::put('/bank-details', [EmployeeController::class, 'updateBankDetails'])->name('bank-details.update');
+            Route::get('/education', [EmployeeController::class, 'editEducation'])->name('education.edit');
+            Route::put('/education', [EmployeeController::class, 'updateEducation'])->name('education.update');
+            Route::get('/experience', [EmployeeController::class, 'editExperience'])->name('experience.edit');
+            Route::put('/experience', [EmployeeController::class, 'updateExperience'])->name('experience.update');
+            Route::get('/documents', [EmployeeController::class, 'editDocuments'])->name('documents.edit');
+            Route::put('/documents', [EmployeeController::class, 'updateDocuments'])->name('documents.update');
+            Route::get('/assets', [EmployeeController::class, 'editAssets'])->name('assets.edit');
+            Route::put('/assets', [EmployeeController::class, 'updateAssets'])->name('assets.update');
+        });
     });
 
     Route::prefix('roles')->name('roles.')->group(function () {

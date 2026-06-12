@@ -132,7 +132,8 @@
 
                                     @can('employee.edit')
                                         @if (($role && $role->name !== 'superadmin') || has_role('superadmin'))
-                                            <a class="btn-ghost" href="{{ route('employees.edit', $employee) }}"
+                                            <a class="btn-ghost"
+                                                href="{{ route('employees.basic-information.edit', $employee) }}"
                                                 style="padding:6px" title="Edit">
 
                                                 <svg fill="none" height="16" stroke-width="2" stroke="currentColor"

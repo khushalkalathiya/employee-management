@@ -1,4 +1,15 @@
 <x-app-layout>
+    <div class="p-5">
+        <div>
+            <h1 class="section-title">
+                Edit Employee
+            </h1>
+
+            <p class="section-sub">
+                Update employee information and account settings
+            </p>
+        </div>
+    </div>
     <div class="settings-layout">
         <div class="settings-mobile-header">
             <button class="settings-menu-btn" onclick="openSubSidebarMenu()" type="button">
@@ -9,28 +20,16 @@
                 </svg>
             </button>
             <h2 class="settings-page-title">
-                Settings Menu
+                Employee Profile
             </h2>
         </div>
 
         <aside class="sub-side-menu">
-            @include('setting.sidebar')
+            @include('employees.sidebar')
         </aside>
 
         <!-- Content -->
         <div class="settings-content">
-
-            <div class="p-5">
-                <div>
-                    <h1 class="section-title">
-                        Edit Employee
-                    </h1>
-
-                    <p class="section-sub">
-                        Update employee information and account settings
-                    </p>
-                </div>
-            </div>
 
             <form action="{{ route('employees.update', $employee->id) }}" enctype="multipart/form-data" method="POST">
                 @csrf
@@ -265,7 +264,7 @@
                 ✕
             </button>
             <div class="settings-mobile-scroll">
-                @include('setting.sidebar')
+                @include('employees.sidebar')
             </div>
         </div>
     </div>

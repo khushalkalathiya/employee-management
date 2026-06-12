@@ -38,22 +38,6 @@ class EmployeeController extends Controller
         return view('employees.show', compact('employee'));
     }
 
-    public function edit(User $employee)
-    {
-        $roles = Role::pluck('display_name','name');
-
-        return view('employees.edit', compact('employee', 'roles'));
-    }
-
-    public function update(UpdateEmployeeRequest $request, User $employee, UpdateEmployeeAction $action) {
-        try {
-            $action->handle($employee, $request->validated());
-            return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
-        } catch (\Throwable $e) {
-            return back()->withInput()->with('error', $e->getMessage());
-        }
-    }
-
     public function destroy(User $employee, DeleteEmployeeAction $action): JsonResponse {
         try {
             $action->handle($employee);
@@ -66,6 +50,150 @@ class EmployeeController extends Controller
                 'success' => false,
                 'message' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function editBasicInformation(User $employee)
+    {
+        $roles = Role::pluck('display_name','name');
+
+        return view('employees.edit', compact('employee', 'roles'));
+    }
+
+    public function updateBasicInformation(UpdateEmployeeRequest $request, User $employee, UpdateEmployeeAction $action) {
+        try {
+            $action->handle($employee, $request->validated());
+            return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    public function editEmploymentDetails(User $employee)
+    {
+        $roles = Role::pluck('display_name','name');
+
+        return view('employees.edit', compact('employee', 'roles'));
+    }
+
+    public function updateEmploymentDetails(UpdateEmployeeRequest $request, User $employee, UpdateEmployeeAction $action) {
+        try {
+            $action->handle($employee, $request->validated());
+            return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    public function editAddressInformation(User $employee)
+    {
+        $roles = Role::pluck('display_name','name');
+
+        return view('employees.edit', compact('employee', 'roles'));
+    }
+
+    public function updateAddressInformation(UpdateEmployeeRequest $request, User $employee, UpdateEmployeeAction $action) {
+        try {
+            $action->handle($employee, $request->validated());
+            return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    public function editFamilyInformation(User $employee)
+    {
+        $roles = Role::pluck('display_name','name');
+
+        return view('employees.edit', compact('employee', 'roles'));
+    }
+
+    public function updateFamilyInformation(UpdateEmployeeRequest $request, User $employee, UpdateEmployeeAction $action) {
+        try {
+            $action->handle($employee, $request->validated());
+            return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    public function editBankDetails(User $employee)
+    {
+        $roles = Role::pluck('display_name','name');
+
+        return view('employees.edit', compact('employee', 'roles'));
+    }
+
+    public function updateBankDetails(UpdateEmployeeRequest $request, User $employee, UpdateEmployeeAction $action) {
+        try {
+            $action->handle($employee, $request->validated());
+            return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    public function editEducation(User $employee)
+    {
+        $roles = Role::pluck('display_name','name');
+
+        return view('employees.edit', compact('employee', 'roles'));
+    }
+
+    public function updateEducation(UpdateEmployeeRequest $request, User $employee, UpdateEmployeeAction $action) {
+        try {
+            $action->handle($employee, $request->validated());
+            return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    public function editExperience(User $employee)
+    {
+        $roles = Role::pluck('display_name','name');
+
+        return view('employees.edit', compact('employee', 'roles'));
+    }
+
+    public function updateExperience(UpdateEmployeeRequest $request, User $employee, UpdateEmployeeAction $action) {
+        try {
+            $action->handle($employee, $request->validated());
+            return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    public function editDocuments(User $employee)
+    {
+        $roles = Role::pluck('display_name','name');
+
+        return view('employees.edit', compact('employee', 'roles'));
+    }
+
+    public function updateDocuments(UpdateEmployeeRequest $request, User $employee, UpdateEmployeeAction $action) {
+        try {
+            $action->handle($employee, $request->validated());
+            return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    public function editAssets(User $employee)
+    {
+        $roles = Role::pluck('display_name','name');
+
+        return view('employees.edit', compact('employee', 'roles'));
+    }
+
+    public function updateAssets(UpdateEmployeeRequest $request, User $employee, UpdateEmployeeAction $action) {
+        try {
+            $action->handle($employee, $request->validated());
+            return redirect()->route('employees.index')->with('success', 'Employee updated successfully.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', $e->getMessage());
         }
     }
 }

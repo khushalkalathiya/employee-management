@@ -110,9 +110,11 @@
 
                 <div class="sb-section-label">Workforce</div>
 
-                <a class="nav-item {{ request()->routeIs('attendance.*') ? 'active' : '' }}" href="{{ route('attendance.index') }}">
+                <a class="nav-item {{ request()->routeIs('attendance.*') ? 'active' : '' }}"
+                    href="{{ route('attendance.index') }}">
                     <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
-                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
+                            <path
+                                d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
                         </svg></span>
                     <span class="nav-label">Attendance</span>
                     <span class="nav-tooltip">Attendance</span>
@@ -121,7 +123,8 @@
                 @can('leave.view')
                     <a class="nav-item {{ request()->routeIs('leaves.*') ? 'active' : '' }}"
                         href="{{ route('leaves.index') }}">
-                        <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
+                        <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24"
+                                width="18">
                                 <path
                                     d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z" />
                             </svg></span>
@@ -285,6 +288,17 @@
                                 d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" />
                         </svg>
                         <span class="notif-dot"></span>
+                    </div>
+
+                    {{-- Timer --}}
+                    <div aria-label="Timer" class="icon-btn" onclick="modalHelper.open('timerFormModal')"
+                        role="button" tabindex="0" title="Timer">
+
+                        <svg fill="currentColor" height="17" viewBox="0 0 24 24" width="17">
+                            <path
+                                d="M15 1H9v2h6V1zm-3 4C7.03 5 3 9.03 3 14s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7zm.5-11H11v5l4.25 2.52.75-1.23-3.5-2.04V10z" />
+                        </svg>
+
                     </div>
 
                     <!-- Theme toggle -->
@@ -474,6 +488,59 @@
 
     </div>
 
+
+    <div class="modal fixed inset-0 z-[9998] hidden items-center justify-center bg-black/0 p-4 backdrop-blur-sm transition-all duration-300"
+        id="timerFormModal">
+        <div
+            class="modal-content relative w-full max-w-xl scale-95 overflow-hidden rounded-2xl border border-gray-200 bg-white opacity-0 shadow-2xl transition-all duration-300 dark:border-gray-800 dark:bg-gray-950">
+            <button
+                class="modal-close-btn close-icon absolute right-4 top-4 cursor-pointer text-gray-400 transition hover:text-gray-700 dark:hover:text-white"
+                type="button">
+                <svg class="h-5 w-5" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </button>
+
+            <div class="p-6">
+                <h3 class="section-title" id="timerModalTitle">Timer</h3>
+            </div>
+
+            <form data-create-action="{{ route('departments.store') }}" id="timerForm" method="POST">
+                @csrf
+                <input class="hidden" id="timerFormIsEdit" name="is_edit" type="hidden" value="0" />
+                <div class="p-6 pt-2">
+                    <div class="grid grid-cols-1 gap-5">
+                        <div>
+                            <label class="field-label">Name <span class="text-red-400">*</span></label>
+                            <div class="field-wrap relative">
+                                <input class="field-input" id="departmentName" name="name"
+                                    placeholder="Enter department name" required type="text">
+                            </div>
+                            <p class="err-msg hidden"></p>
+                        </div>
+
+                        <div>
+                            <label class="field-label">Description</label>
+                            <div class="field-wrap relative">
+                                <textarea class="field-input min-h-[110px]" id="departmentDescription" name="description"
+                                    placeholder="Enter department description"></textarea>
+                            </div>
+                            <p class="err-msg hidden"></p>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 bg-gray-50 p-4 pt-0 dark:bg-gray-950">
+                    <button class="btn-ghost modal-close-btn" type="button">
+                        Cancel
+                    </button>
+                    <button class="btn-primary" id="departmentSubmitButton" type="submit">
+                        Create Department
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
     @livewireScriptConfig
 </body>
