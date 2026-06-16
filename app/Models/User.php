@@ -45,6 +45,11 @@ class User extends Authenticatable implements HasMedia
             ->singleFile();
     }
 
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
+
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;

@@ -291,14 +291,12 @@
                     </div>
 
                     {{-- Timer --}}
-                    <div aria-label="Timer" class="icon-btn" onclick="modalHelper.open('timerFormModal')"
-                        role="button" tabindex="0" title="Timer">
-
+                    <div aria-label="Timer" class="icon-btn" onclick="openTimerDrawer()" role="button"
+                        tabindex="0" title="Timer">
                         <svg fill="currentColor" height="17" viewBox="0 0 24 24" width="17">
                             <path
                                 d="M15 1H9v2h6V1zm-3 4C7.03 5 3 9.03 3 14s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9zm0 16c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7zm.5-11H11v5l4.25 2.52.75-1.23-3.5-2.04V10z" />
                         </svg>
-
                     </div>
 
                     <!-- Theme toggle -->
@@ -488,60 +486,193 @@
 
     </div>
 
+    <div class="timer-modal fixed inset-0 z-[9998] hidden bg-black/20 backdrop-blur-sm" id="timerFormModal">
 
-    <div class="modal fixed inset-0 z-[9998] hidden items-center justify-center bg-black/0 p-4 backdrop-blur-sm transition-all duration-300"
-        id="timerFormModal">
         <div
-            class="modal-content relative w-full max-w-xl scale-95 overflow-hidden rounded-2xl border border-gray-200 bg-white opacity-0 shadow-2xl transition-all duration-300 dark:border-gray-800 dark:bg-gray-950">
+            class="timer-drawer absolute right-0 top-0 h-full w-full max-w-xl translate-x-full overflow-y-auto border-l border-gray-200 bg-white shadow-2xl transition-transform duration-300 dark:border-gray-800 dark:bg-gray-950">
+
             <button
-                class="modal-close-btn close-icon absolute right-4 top-4 cursor-pointer text-gray-400 transition hover:text-gray-700 dark:hover:text-white"
-                type="button">
+                class="close-icon absolute right-4 top-4 cursor-pointer text-gray-400 transition hover:text-gray-700 dark:hover:text-white"
+                onclick="closeTimerDrawer()" type="button">
                 <svg class="h-5 w-5" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </button>
+            <!-- content -->
 
-            <div class="p-6">
-                <h3 class="section-title" id="timerModalTitle">Timer</h3>
-            </div>
+            <div class="flex min-h-full flex-col">
 
-            <form data-create-action="{{ route('departments.store') }}" id="timerForm" method="POST">
-                @csrf
-                <input class="hidden" id="timerFormIsEdit" name="is_edit" type="hidden" value="0" />
-                <div class="p-6 pt-2">
-                    <div class="grid grid-cols-1 gap-5">
-                        <div>
-                            <label class="field-label">Name <span class="text-red-400">*</span></label>
-                            <div class="field-wrap relative">
-                                <input class="field-input" id="departmentName" name="name"
-                                    placeholder="Enter department name" required type="text">
-                            </div>
-                            <p class="err-msg hidden"></p>
+                <!-- Header -->
+                <div class="border-b border-gray-200 px-6 py-8 dark:border-gray-800">
+
+                    <!-- Profile -->
+                    <div class="flex flex-col items-center text-center">
+
+                        <img alt="Profile" class="h-24 w-24 rounded-full border-4 border-white shadow-lg"
+                            src="https://ui-avatars.com/api/?name=Khushal+Baraiya&background=6366f1&color=fff&size=128">
+
+                        <h2 class="mt-4 text-xl font-semibold text-gray-900 dark:text-white">
+                            Khushal Baraiya
+                        </h2>
+
+                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                            Project Head
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <!-- Attendance -->
+                <div class="flex-1 p-6">
+
+                    <!-- Current Time -->
+                    <div
+                        class="mb-6 rounded-2xl border border-gray-200 bg-gray-50 p-5 text-center dark:border-gray-800 dark:bg-gray-900">
+
+                        <div class="text-sm text-gray-500">
+                            Current Time
                         </div>
 
-                        <div>
-                            <label class="field-label">Description</label>
-                            <div class="field-wrap relative">
-                                <textarea class="field-input min-h-[110px]" id="departmentDescription" name="description"
-                                    placeholder="Enter department description"></textarea>
-                            </div>
-                            <p class="err-msg hidden"></p>
+                        <div class="mt-2 text-4xl font-bold tracking-wider">
+                            10:25:48
+                        </div>
+
+                        <div class="mt-2 text-sm text-gray-500">
+                            Monday, 15 June 2026
                         </div>
 
                     </div>
+
+                    <!-- Working Status -->
+                    <div
+                        class="mb-6 rounded-2xl border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950">
+
+                        <div class="flex items-center justify-between">
+
+                            <span class="text-sm font-medium text-green-700 dark:text-green-400">
+                                Status
+                            </span>
+
+                            <span
+                                class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900 dark:text-green-300">
+                                Working
+                            </span>
+
+                        </div>
+                    </div>
+
+                    <!-- Clock In State -->
+                    <div class="space-y-4">
+
+                        <button
+                            class="w-full rounded-xl bg-indigo-600 px-5 py-4 text-base font-semibold text-white transition hover:bg-indigo-700">
+                            Clock In
+                        </button>
+
+                    </div>
+
+                    <!-- Show After Clock In -->
+                    <div class="mt-4 hidden space-y-4">
+
+                        <div class="grid grid-cols-2 gap-4">
+
+                            <button
+                                class="rounded-xl bg-red-600 px-5 py-4 text-base font-semibold text-white transition hover:bg-red-700">
+                                Clock Out
+                            </button>
+
+                            <button
+                                class="rounded-xl bg-amber-500 px-5 py-4 text-base font-semibold text-white transition hover:bg-amber-600">
+                                Break
+                            </button>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Today's Summary -->
+                    <div class="mt-8 rounded-2xl border border-gray-200 dark:border-gray-800">
+
+                        <div class="border-b border-gray-200 p-4 dark:border-gray-800">
+                            <h3 class="font-semibold">
+                                Today's Activity
+                            </h3>
+                        </div>
+
+                        <div class="divide-y divide-gray-200 dark:divide-gray-800">
+
+                            <div class="flex items-center justify-between p-4">
+                                <span class="text-sm text-gray-500">
+                                    Clock In
+                                </span>
+
+                                <span class="font-medium">
+                                    09:05 AM
+                                </span>
+                            </div>
+
+                            <div class="flex items-center justify-between p-4">
+                                <span class="text-sm text-gray-500">
+                                    Break Time
+                                </span>
+
+                                <span class="font-medium">
+                                    00:35 Hrs
+                                </span>
+                            </div>
+
+                            <div class="flex items-center justify-between p-4">
+                                <span class="text-sm text-gray-500">
+                                    Working Hours
+                                </span>
+
+                                <span class="font-medium text-green-600">
+                                    07:25 Hrs
+                                </span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- Recent Logs -->
+                    <div class="mt-6 rounded-2xl border border-gray-200 dark:border-gray-800">
+
+                        <div class="border-b border-gray-200 p-4 dark:border-gray-800">
+                            <h3 class="font-semibold">
+                                Recent Logs
+                            </h3>
+                        </div>
+
+                        <div class="space-y-3 p-4">
+
+                            <div class="flex items-center justify-between text-sm">
+                                <span>Clock In</span>
+                                <span class="text-green-600">09:05 AM</span>
+                            </div>
+
+                            <div class="flex items-center justify-between text-sm">
+                                <span>Break Started</span>
+                                <span class="text-amber-600">01:00 PM</span>
+                            </div>
+
+                            <div class="flex items-center justify-between text-sm">
+                                <span>Break Ended</span>
+                                <span class="text-blue-600">01:35 PM</span>
+                            </div>
+
+                        </div>
+
+                    </div>
+
                 </div>
 
-                <div class="flex items-center justify-end gap-3 bg-gray-50 p-4 pt-0 dark:bg-gray-950">
-                    <button class="btn-ghost modal-close-btn" type="button">
-                        Cancel
-                    </button>
-                    <button class="btn-primary" id="departmentSubmitButton" type="submit">
-                        Create Department
-                    </button>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
+
+
     @livewireScriptConfig
 </body>
 

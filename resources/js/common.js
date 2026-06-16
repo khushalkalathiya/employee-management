@@ -267,6 +267,13 @@ document.addEventListener('click', (e) => {
         return;
     }
 
+    // Timer drawer backdrop click
+    const timerModal = document.getElementById('timerFormModal');
+    if (timerModal && e.target === timerModal && !timerModal.classList.contains('hidden')) {
+        closeTimerDrawer();
+        return;
+    }
+
     // Delete modal backdrop click
     const deleteModal = document.getElementById('deleteItemConfirmModel');
     if (
@@ -529,11 +536,29 @@ window.modalHelper = {
     }
 };
 
-window.openTimerModal = function () {
+window.openTimerDrawer = function () {
     const modal = document.getElementById('timerFormModal');
-    modalHelper.open('timerFormModal');
-}
+    const drawer = modal.querySelector('.timer-drawer');
 
+    modal.classList.remove('hidden');
+
+    requestAnimationFrame(() => {
+        drawer.classList.remove('translate-x-full');
+        drawer.classList.add('translate-x-0');
+    });
+};
+
+window.closeTimerDrawer = function () {
+    const modal = document.getElementById('timerFormModal');
+    const drawer = modal.querySelector('.timer-drawer');
+
+    drawer.classList.remove('translate-x-0');
+    drawer.classList.add('translate-x-full');
+
+    setTimeout(() => {
+        modal.classList.add('hidden');
+    }, 300);
+};
 
 
 

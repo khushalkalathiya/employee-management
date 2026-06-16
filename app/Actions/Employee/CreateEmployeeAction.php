@@ -26,6 +26,10 @@ class CreateEmployeeAction
                 'gender'       => $data['gender'] ?? null,
             ]);
 
+            $user->employee()->create([
+                'employee_code' => 'EMP-' . str_pad($user->id, 5, '0', STR_PAD_LEFT),
+            ]);
+
             $user->assignRole($data['role']);
 
             if (isset($data['avatar']) && $data['avatar'] instanceof UploadedFile) {

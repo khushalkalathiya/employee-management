@@ -19,7 +19,7 @@ class Employee extends Model
         'probation_end_date',
         'employment_type', // permanent, contract, intern, freelancer
         'reporting_manager_id', // user_id
-        'status', // integer : active, probation, notice, resigned, terminated
+        'status', // active, probation, notice, resigned, terminated
         'current_salary',
         'address',
         'city',
@@ -68,9 +68,9 @@ class Employee extends Model
         return $this->hasMany(Salary::class);
     }
 
-    public function bankAccounts()
+    public function bankAccount()
     {
-        return $this->hasMany(BankAccount::class);
+        return $this->hasOne(BankAccount::class);
     }
 
     public function assets()

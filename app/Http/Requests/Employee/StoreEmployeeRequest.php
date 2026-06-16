@@ -31,7 +31,7 @@ class StoreEmployeeRequest extends FormRequest
             'password'   => ['required', 'string', 'min:8', 'confirmed'],
             'role' => ['required'],
             'joining_date' => ['required', 'date'],
-            'gender' => ['nullable', 'in:male,female,other']
+            // 'gender' => ['nullable', 'in:male,female,other']
         ];
     }
 }

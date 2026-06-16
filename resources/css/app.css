@@ -1783,7 +1783,7 @@ option {
 
 .settings-layout{
     display:flex;
-    gap:0;
+    gap:24px;
     min-height:calc(100vh - 90px);
 }
 
@@ -1825,9 +1825,7 @@ option {
 
 .settings-content{
     flex:1;
-    padding:24px;
     min-width:0;
-    padding-top:0px;
 }
 
 /* ==============================
@@ -1968,11 +1966,7 @@ option {
     .settings-mobile-header{
         display:flex;
     }
-
-    .settings-content{
-        padding:0;
-    }
-
+   
     .settings-content-card{
         min-height:auto;
     }

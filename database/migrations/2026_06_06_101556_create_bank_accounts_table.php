@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('bank_accounts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
-            $table->string('bank_name');
-            $table->string('account_holder_name');
-            $table->string('account_number');
-            $table->string('ifsc_code');
+            $table->string('bank_name')->nullable();
+            $table->string('account_holder_name')->nullable();
+            $table->string('account_number')->nullable();
+            $table->string('ifsc_code')->nullable();
             $table->string('branch_name')->nullable();
             $table->string('upi_id')->nullable();
             $table->timestamps();

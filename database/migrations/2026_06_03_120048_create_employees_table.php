@@ -25,7 +25,7 @@ return new class extends Migration
             $table->date('probation_end_date')->nullable();
             $table->string('employment_type')->nullable();
             $table->foreignId('reporting_manager_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->integer('status')->default(1);
+            $table->string('status')->default('active')->comment('active, probation, notice, resigned, terminated');
             $table->decimal('current_salary', 12, 4)->default(0);
             $table->text('address')->nullable();
             $table->string('city')->nullable();
