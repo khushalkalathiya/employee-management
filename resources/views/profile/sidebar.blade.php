@@ -1,4 +1,4 @@
-<div class="sb-section-label">Employee Information</div>
+<div class="sb-section-label">Profile Information</div>
 @can('employee.edit')
     <!-- Basic Information -->
     <a class="nav-item {{ request()->routeIs('employees.basic-information.*') ? 'active' : '' }}"

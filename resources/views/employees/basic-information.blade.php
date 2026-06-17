@@ -1,5 +1,4 @@
-<form action="{{ route('employees.basic-information.update', $employee->id) }}" enctype="multipart/form-data"
-    method="POST">
+<form action="{{ route('employees.basic-information.update', $user->id) }}" enctype="multipart/form-data" method="POST">
     @csrf
     @method('put')
 
@@ -16,7 +15,7 @@
 
                     <!-- Placeholder -->
                     <div
-                        class="placeholder {{ $employee->avatar ? 'hidden' : '' }} flex flex-col items-center gap-2 text-center">
+                        class="placeholder {{ $user->avatar ? 'hidden' : '' }} flex flex-col items-center gap-2 text-center">
 
                         <svg class="h-8 w-8 text-gray-400 dark:text-gray-500" fill="none" stroke-width="1.8"
                             stroke="currentColor" viewBox="0 0 24 24">
@@ -38,8 +37,8 @@
 
                     <!-- Preview -->
                     <img alt="Preview"
-                        class="preview {{ $employee->avatar ? '' : 'hidden' }} absolute inset-0 h-full w-full object-cover"
-                        src="{{ $employee->avatar ?? '' }}">
+                        class="preview {{ $user->avatar ? '' : 'hidden' }} absolute inset-0 h-full w-full object-cover"
+                        src="{{ $user->avatar ?? '' }}">
 
                     <!-- Remove -->
                     <button
@@ -60,7 +59,7 @@
 
                     <div class="field-wrap relative">
                         <input class="field-input" name="first_name" placeholder="Enter first name" required
-                            type="text" value="{{ old('first_name') ?? ($employee->first_name ?? '') }}" />
+                            type="text" value="{{ old('first_name') ?? ($user->first_name ?? '') }}" />
                     </div>
 
                     @error('first_name')
@@ -73,7 +72,7 @@
 
                     <div class="field-wrap relative">
                         <input class="field-input" name="last_name" placeholder="Enter last name" required
-                            type="text" value="{{ old('last_name') ?? ($employee->last_name ?? '') }}" />
+                            type="text" value="{{ old('last_name') ?? ($user->last_name ?? '') }}" />
                     </div>
 
                     @error('last_name')
@@ -86,7 +85,7 @@
 
                     <div class="field-wrap relative">
                         <input class="field-input" name="email" placeholder="john@example.com" required type="email"
-                            value="{{ old('email') ?? ($employee->email ?? '') }}" />
+                            value="{{ old('email') ?? ($user->email ?? '') }}" />
                     </div>
 
                     @error('email')
@@ -99,7 +98,7 @@
 
                     <div class="field-wrap relative">
                         <input class="field-input" name="phone" placeholder="+91 XXXXX XXXXX" required type="text"
-                            value="{{ old('phone') ?? ($employee->phone ?? '') }}" />
+                            value="{{ old('phone') ?? ($user->phone ?? '') }}" />
                     </div>
 
                     @error('phone')
@@ -110,14 +109,14 @@
 
         </div>
 
-        @if (authId() != $employee->id)
+        @if (authId() != $user->id)
             <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
                 <div>
                     <label class="field-label">Joining Date <span class="text-red-400">*</span></label>
 
                     <div class="field-wrap relative">
                         <input class="field-input" name="joining_date" required type="date"
-                            value="{{ old('joining_date') ?? ($employee->joining_date ?? '') }}" />
+                            value="{{ old('joining_date') ?? ($user->joining_date ?? '') }}" />
                     </div>
 
                     @error('joining_date')
@@ -132,7 +131,7 @@
                             class="field-input tom-select appearance-none border border-[var(--border)] bg-[var(--card)] text-[var(--text)]"
                             data-placeholder="Select Role" name="role" required>
                             @foreach ($roles as $name => $displayName)
-                                <option @selected(old('role', $employee->role) === $name)>
+                                <option @selected(old('role', $user->role) === $name) value="{{ $name }}">
                                     {{ $displayName ?? '-' }}
                                 </option>
                             @endforeach

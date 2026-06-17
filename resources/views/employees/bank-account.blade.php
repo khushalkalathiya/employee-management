@@ -1,4 +1,4 @@
-<form action="{{ route('employees.bank-account.update', $employee->id) }}" method="POST">
+<form action="{{ route('employees.bank-account.update', $user->id) }}" method="POST">
     @csrf
     @method('put')
 
@@ -18,7 +18,8 @@
             <div>
                 <label class="field-label">Account Holder Name <span class="text-red-400">*</span></label>
                 <div class="field-wrap relative">
-                    <input class="field-input" name="account_holder_name" placeholder="Enter account holder name" required type="text"
+                    <input class="field-input" name="account_holder_name" placeholder="Enter account holder name"
+                        required type="text"
                         value="{{ old('account_holder_name', $bankAccount->account_holder_name ?? $employee->full_name) }}" />
                 </div>
                 @error('account_holder_name')
@@ -31,8 +32,8 @@
             <div>
                 <label class="field-label">Account Number <span class="text-red-400">*</span></label>
                 <div class="field-wrap relative">
-                    <input class="field-input" name="account_number" placeholder="Enter account number" required type="text"
-                        value="{{ old('account_number', $bankAccount->account_number ?? '') }}" />
+                    <input class="field-input" name="account_number" placeholder="Enter account number" required
+                        type="text" value="{{ old('account_number', $bankAccount->account_number ?? '') }}" />
                 </div>
                 @error('account_number')
                     <p class="err-msg">{{ $message }}</p>

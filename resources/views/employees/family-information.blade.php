@@ -1,8 +1,8 @@
 @php
-    $family = $employee->employee ? $employee->employee->familyInformation : null;
+    $family = $user->employee ? $user->employee->familyInformation : null;
 @endphp
 
-<form action="{{ route('employees.family-information.update', $employee->id) }}" method="POST">
+<form action="{{ route('employees.family-information.update', $user->id) }}" method="POST">
     @csrf
     @method('put')
 

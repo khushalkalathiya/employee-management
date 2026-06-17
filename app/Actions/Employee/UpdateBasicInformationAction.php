@@ -21,12 +21,12 @@ class UpdateBasicInformationAction
                     'email'        => $data['email'],
                     'phone'        => $data['phone'],
                 ];
-                if ($user->id != 1) {
+                if ($user->id != authId()) {
                     $fillData = array_merge($fillData, [
-                        'joining_date' => $user->joining_date,
+                        'joining_date' => $data['joining_date'] ?? $user->joining_date,
                     ]);
                     $user->syncRoles([$data['role']]);
-                }g
+                }
 
                 $user->update($fillData);
 

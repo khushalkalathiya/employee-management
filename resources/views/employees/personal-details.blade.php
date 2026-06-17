@@ -1,8 +1,8 @@
 @php
-    $employeeDetails = $employee->employee;
+    $employeeDetails = $user->employee;
 @endphp
 
-<form action="{{ route('employees.personal-details.update', $employee->id) }}" method="POST">
+<form action="{{ route('employees.personal-details.update', $user->id) }}" method="POST">
     @csrf
     @method('put')
 
@@ -198,7 +198,7 @@
                     </span>
                     <input class="field-input" min="0" name="current_salary" placeholder="0.00"
                         step="0.01" style="padding-left: 33px" type="number"
-                        value="{{ old('current_salary', $employeeDetails->current_salary ?? '') }}" />
+                        value="{{ numberFormat(old('current_salary', $employeeDetails->current_salary ?? '')) }}" />
                 </div>
                 @error('current_salary')
                     <p class="err-msg">{{ $message }}</p>

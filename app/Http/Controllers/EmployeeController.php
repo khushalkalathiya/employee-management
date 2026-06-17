@@ -53,118 +53,136 @@ class EmployeeController extends Controller
         }
     }
 
-    public function editBasicInformation(User $employee)
+    public function editBasicInformation()
     {
+        $user = auth()->user();
         $roles = Role::pluck('display_name','name');
         $section = 'basic-information';
 
-        return view('employees.edit', compact('employee', 'roles', 'section'));
+        return view('profile.edit', compact('user', 'roles', 'section'));
     }
 
-    public function updateBasicInformation(UpdateBasicInformationRequest $request, User $employee, \App\Actions\Employee\UpdateBasicInformationAction $action) {
+    public function updateBasicInformation(UpdateBasicInformationRequest $request, User $user, \App\Actions\Employee\UpdateBasicInformationAction $action) {
         try {
-            $action->handle($employee, $request->validated());
-            return redirect()->route('employees.basic-information.edit', $employee->id)->with('success', 'Basic information updated successfully.');
+            $action->handle($user, $request->validated());
+            return redirect()->route('employees.basic-information.edit', $user->id)->with('success', 'Basic information updated successfully.');
         } catch (\Throwable $e) {
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
 
-    public function editPersonalDetails(User $employee)
+    public function editPersonalDetails(User $user)
     {
-        $employee->load('employee');
+        $user->load('employee');
         $departments = \App\Models\Department::pluck('name', 'id');
         $designations = \App\Models\Designation::pluck('name', 'id');
-        $managers = User::where('id', '!=', $employee->id)->get();
+        $managers = User::where('id', '!=', $user->id)->get();
         $section = 'personal-details';
 
-        return view('employees.edit', compact('employee', 'departments', 'designations', 'managers', 'section'));
+        return view('employees.edit', compact('user', 'departments', 'designations', 'managers', 'section'));
     }
 
-    public function updatePersonalDetails(\App\Http\Requests\Employee\UpdatePersonalDetailsRequest $request, User $employee, \App\Actions\Employee\UpdatePersonalDetailsAction $action)
+    public function updatePersonalDetails(\App\Http\Requests\Employee\UpdatePersonalDetailsRequest $request, User $user, \App\Actions\Employee\UpdatePersonalDetailsAction $action)
     {
         try {
-            $action->handle($employee, $request->validated());
-            return redirect()->route('employees.personal-details.edit', $employee->id)->with('success', 'Personal details updated successfully.');
+            $action->handle($user, $request->validated());
+            return redirect()->route('employees.personal-details.edit', $user->id)->with('success', 'Personal details updated successfully.');
         } catch (\Throwable $e) {
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
 
-    public function editFamilyInformation(User $employee)
+    public function editFamilyInformation(User $user)
     {
-        $employee->load('employee.familyInformation');
+        $user->load('employee.familyInformation');
         $section = 'family-information';
-        return view('employees.edit', compact('employee', 'section'));
+        return view('employees.edit', compact('user', 'section'));
     }
   
-    public function updateFamilyInformation(\App\Http\Requests\Employee\UpdateFamilyInformationRequest $request, User $employee, \App\Actions\Employee\UpdateFamilyInformationAction $action)
+    public function updateFamilyInformation(\App\Http\Requests\Employee\UpdateFamilyInformationRequest $request, User $user, \App\Actions\Employee\UpdateFamilyInformationAction $action)
     {
         try {
-            $action->handle($employee, $request->validated());
-            return redirect()->route('employees.family-information.edit', $employee->id)->with('success', 'Family information updated successfully.');
+            $action->handle($user, $request->validated());
+            return redirect()->route('employees.family-information.edit', $user->id)->with('success', 'Family information updated successfully.');
         } catch (\Throwable $e) {
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
 
-    public function editBankAccount(User $employee)
+    public function editBankAccount(User $user)
     {
-        $employee->load('employee.bankAccount');
-        $bankAccount = $employee->employee ? $employee->employee->bankAccount : null;
+        $user->load('employee.bankAccount');
+        $bankAccount = $user->employee ? $user->employee->bankAccount : null;
         $section = 'bank-account';
-        return view('employees.edit', compact('employee', 'bankAccount', 'section'));
+        return view('employees.edit', compact('user', 'bankAccount', 'section'));
     }
 
-    public function updateBankAccount(\App\Http\Requests\Employee\UpdateBankAccountRequest $request, User $employee, \App\Actions\Employee\UpdateBankAccountAction $action)
+    public function updateBankAccount(\App\Http\Requests\Employee\UpdateBankAccountRequest $request, User $user, \App\Actions\Employee\UpdateBankAccountAction $action)
     {
         try {
-            $action->handle($employee, $request->validated());
-            return redirect()->route('employees.bank-account.edit', $employee->id)->with('success', 'Bank account details updated successfully.');
+            $action->handle($user, $request->validated());
+            return redirect()->route('employees.bank-account.edit', $user->id)->with('success', 'Bank account details updated successfully.');
         } catch (\Throwable $e) {
             return back()->withInput()->with('error', $e->getMessage());
         }
     }
 
-    public function editDocuments(User $employee)
+    public function editDocuments(User $user)
     {
-        $employee->load('employee.documents.media');
-        $documents = $employee->employee ? $employee->employee->documents : collect();
+        $user->load('employee');
         $section = 'documents';
-        return view('employees.edit', compact('employee', 'documents', 'section'));
+        return view('employees.edit', compact('user', 'section'));
     }
 
-    public function storeDocument(\App\Http\Requests\Employee\StoreEmployeeDocumentRequest $request, User $employee, \App\Actions\Employee\CreateEmployeeDocumentAction $action)
+    public function storeDocument(\App\Http\Requests\Employee\StoreEmployeeDocumentRequest $request, User $user, \App\Actions\Employee\CreateEmployeeDocumentAction $action)
     {
         try {
-            $action->handle($employee, $request->validated());
-            return redirect()->route('employees.documents.edit', $employee->id)->with('success', 'Document uploaded successfully.');
+            $action->handle($user, $request->validated());
+            return response()->json([
+                'success' => true,
+                'message' => 'Document uploaded successfully.',
+            ]);
         } catch (\Throwable $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function updateDocument(\App\Http\Requests\Employee\UpdateEmployeeDocumentRequest $request, User $employee, \App\Models\Document $document, \App\Actions\Employee\UpdateEmployeeDocumentAction $action)
+    public function updateDocument(\App\Http\Requests\Employee\UpdateEmployeeDocumentRequest $request, User $user, \App\Models\Document $document, \App\Actions\Employee\UpdateEmployeeDocumentAction $action)
     {
         try {
             $action->handle($document, $request->validated());
-            return redirect()->route('employees.documents.edit', $employee->id)->with('success', 'Document updated successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Document updated successfully.',
+            ]);
         } catch (\Throwable $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function destroyDocument(User $employee, \App\Models\Document $document, \App\Actions\Employee\DeleteEmployeeDocumentAction $action)
+    public function destroyDocument(User $user, \App\Models\Document $document, \App\Actions\Employee\DeleteEmployeeDocumentAction $action)
     {
         try {
             $action->handle($document);
-            return redirect()->route('employees.documents.edit', $employee->id)->with('success', 'Document deleted successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Document deleted successfully.',
+            ]);
         } catch (\Throwable $e) {
-            return back()->with('error', $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function downloadDocument(User $employee, \App\Models\Document $document)
+    public function downloadDocument(User $user, \App\Models\Document $document)
     {
         $media = $document->getFirstMedia('file');
         if ($media) {
@@ -173,117 +191,170 @@ class EmployeeController extends Controller
         return back()->with('error', 'File not found.');
     }
 
-    public function editEducation(User $employee)
+    public function editEducation(User $user)
     {
-        $employee->load('employee.education');
-        $educationList = $employee->employee ? $employee->employee->education : collect();
+        $user->load('employee');
         $section = 'education';
-        return view('employees.edit', compact('employee', 'educationList', 'section'));
+        return view('employees.edit', compact('user', 'section'));
     }
 
-    public function storeEducation(\App\Http\Requests\Employee\StoreEducationRequest $request, User $employee, \App\Actions\Employee\CreateEducationAction $action)
+    public function storeEducation(\App\Http\Requests\Employee\StoreEducationRequest $request, User $user, \App\Actions\Employee\CreateEducationAction $action)
     {
         try {
-            $action->handle($employee, $request->validated());
-            return redirect()->route('employees.education.edit', $employee->id)->with('success', 'Education details added successfully.');
+            $action->handle($user, $request->validated());
+            return response()->json([
+                'success' => true,
+                'message' => 'Education details added successfully.',
+            ]);
         } catch (\Throwable $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function updateEducation(\App\Http\Requests\Employee\UpdateEducationRequest $request, User $employee, \App\Models\Education $education, \App\Actions\Employee\UpdateEducationAction $action)
+    public function updateEducation(\App\Http\Requests\Employee\UpdateEducationRequest $request, User $user, \App\Models\Education $education, \App\Actions\Employee\UpdateEducationAction $action)
     {
         try {
             $action->handle($education, $request->validated());
-            return redirect()->route('employees.education.edit', $employee->id)->with('success', 'Education details updated successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Education details updated successfully.',
+            ]);
         } catch (\Throwable $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function destroyEducation(User $employee, \App\Models\Education $education, \App\Actions\Employee\DeleteEducationAction $action)
+    public function destroyEducation(User $user, \App\Models\Education $education, \App\Actions\Employee\DeleteEducationAction $action)
     {
         try {
             $action->handle($education);
-            return redirect()->route('employees.education.edit', $employee->id)->with('success', 'Education record deleted successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Education deleted successfully.',
+            ]);
         } catch (\Throwable $e) {
-            return back()->with('error', $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function editExperience(User $employee)
+    public function editExperience(User $user)
     {
-        $employee->load('employee.experiences');
-        $experiences = $employee->employee ? $employee->employee->experiences : collect();
+        $user->load('employee');
+        $experiences = $user->employee ? $user->employee->experiences : collect();
         $section = 'experience';
-        return view('employees.edit', compact('employee', 'experiences', 'section'));
+        return view('employees.edit', compact('user', 'experiences', 'section'));
     }
 
-    public function storeExperience(\App\Http\Requests\Employee\StoreExperienceRequest $request, User $employee, \App\Actions\Employee\CreateExperienceAction $action)
+    public function storeExperience(\App\Http\Requests\Employee\StoreExperienceRequest $request, User $user, \App\Actions\Employee\CreateExperienceAction $action)
     {
         try {
-            $action->handle($employee, $request->validated());
-            return redirect()->route('employees.experience.edit', $employee->id)->with('success', 'Experience record added successfully.');
+            $action->handle($user, $request->validated());
+            return response()->json([
+                'success' => true,
+                'message' => 'Experience record added successfully.',
+            ]);
         } catch (\Throwable $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function updateExperience(\App\Http\Requests\Employee\UpdateExperienceRequest $request, User $employee, \App\Models\Experience $experience, \App\Actions\Employee\UpdateExperienceAction $action)
+    public function updateExperience(\App\Http\Requests\Employee\UpdateExperienceRequest $request, User $user, \App\Models\Experience $experience, \App\Actions\Employee\UpdateExperienceAction $action)
     {
         try {
             $action->handle($experience, $request->validated());
-            return redirect()->route('employees.experience.edit', $employee->id)->with('success', 'Experience record updated successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Experience record updated successfully.',
+            ]);
         } catch (\Throwable $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function destroyExperience(User $employee, \App\Models\Experience $experience, \App\Actions\Employee\DeleteExperienceAction $action)
+    public function destroyExperience(User $user, \App\Models\Experience $experience, \App\Actions\Employee\DeleteExperienceAction $action)
     {
         try {
             $action->handle($experience);
-            return redirect()->route('employees.experience.edit', $employee->id)->with('success', 'Experience record deleted successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Experience deleted successfully.',
+            ]);
         } catch (\Throwable $e) {
-            return back()->with('error', $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function editAssets(User $employee)
+    public function editAssets(User $user)
     {
-        $employee->load('employee.assets');
-        $assets = $employee->employee ? $employee->employee->assets : collect();
+        $user->load('employee');
+        $assets = $user->employee ? $user->employee->assets : collect();
         $section = 'assets';
-        return view('employees.edit', compact('employee', 'assets', 'section'));
+        return view('employees.edit', compact('user', 'assets', 'section'));
     }
 
-    public function storeAsset(\App\Http\Requests\Employee\StoreAssetRequest $request, User $employee, \App\Actions\Employee\CreateAssetAction $action)
+    public function storeAsset(\App\Http\Requests\Employee\StoreAssetRequest $request, User $user, \App\Actions\Employee\CreateAssetAction $action)
     {
         try {
-            $action->handle($employee, $request->validated());
-            return redirect()->route('employees.assets.edit', $employee->id)->with('success', 'Asset recorded successfully.');
+            $action->handle($user, $request->validated());
+            return response()->json([
+                'success' => true,
+                'message' => 'Asset recorded successfully.',
+            ]);
         } catch (\Throwable $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function updateAsset(\App\Http\Requests\Employee\UpdateAssetRequest $request, User $employee, \App\Models\Asset $asset, \App\Actions\Employee\UpdateAssetAction $action)
+    public function updateAsset(\App\Http\Requests\Employee\UpdateAssetRequest $request, User $user, \App\Models\Asset $asset, \App\Actions\Employee\UpdateAssetAction $action)
     {
         try {
             $action->handle($asset, $request->validated());
-            return redirect()->route('employees.assets.edit', $employee->id)->with('success', 'Asset record updated successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Asset record updated successfully.',
+            ]);
         } catch (\Throwable $e) {
-            return back()->withInput()->with('error', $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 
-    public function destroyAsset(User $employee, \App\Models\Asset $asset, \App\Actions\Employee\DeleteAssetAction $action)
+    public function destroyAsset(User $user, \App\Models\Asset $asset, \App\Actions\Employee\DeleteAssetAction $action)
     {
         try {
             $action->handle($asset);
-            return redirect()->route('employees.assets.edit', $employee->id)->with('success', 'Asset record deleted successfully.');
+            return response()->json([
+                'success' => true,
+                'message' => 'Asset deleted successfully.',
+            ]);
         } catch (\Throwable $e) {
-            return back()->with('error', $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
     }
 }

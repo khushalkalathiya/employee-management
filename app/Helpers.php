@@ -69,11 +69,22 @@ if (! function_exists('convertTimeTo24HourFormat')) {
     }
 }
 
+if (! function_exists('numberFormat')) {
+    function numberFormat(mixed $amount): string
+    {
+        try {
+            return number_format((float)$amount, 2);
+        } catch (\Throwable $e) {
+            return '0.00';
+        }
+    }
+}
+
 if (! function_exists('currencyFormat')) {
     function currencyFormat(mixed $amount): string
     {
         try {
-            return "$".number_format((float)$amount, 2);
+            return "$".numberFormat($amount);
         } catch (\Throwable $e) {
             return '$0.00';
         }
