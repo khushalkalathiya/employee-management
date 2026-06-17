@@ -20,7 +20,7 @@
                 <div class="field-wrap relative">
                     <input class="field-input" name="account_holder_name" placeholder="Enter account holder name"
                         required type="text"
-                        value="{{ old('account_holder_name', $bankAccount->account_holder_name ?? $employee->full_name) }}" />
+                        value="{{ old('account_holder_name', $bankAccount->account_holder_name ?? $user->full_name) }}" />
                 </div>
                 @error('account_holder_name')
                     <p class="err-msg">{{ $message }}</p>
