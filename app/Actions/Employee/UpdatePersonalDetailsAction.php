@@ -21,7 +21,31 @@ class UpdatePersonalDetailsAction
                 ]);
             }
 
-            $employee->update($data);
+            $fillData = [
+                'gender' => $data['gender'] ?? $employee->gender,
+                'date_of_birth' => $data['date_of_birth'] ?? $employee->date_of_birth,
+                'marital_status' => $data['marital_status'] ?? $employee->marital_status,
+                'alternate_phone' => $data['alternate_phone'] ?? $employee->alternate_phone,
+                'address' => $data['address'] ?? $employee->address,
+                'city' => $data['city'] ?? $employee->city,
+                'state' => $data['state'] ?? $employee->state,
+                'country' => $data['country'] ?? $employee->country,
+                'postal_code' => $data['postal_code'] ?? $employee->postal_code,
+            ];
+
+            if(authId() != $user->id){
+                $fillData['employee_code'] = $data['employee_code'] ?? $employee->employee_code;
+                $fillData['department_id'] = $data['department_id'] ?? $employee->department_id;
+                $fillData['designation_id'] = $data['designation_id'] ?? $employee->designation_id;
+                $fillData['employment_type'] = $data['employment_type'] ?? $employee->employment_type;
+                $fillData['reporting_manager_id'] = $data['reporting_manager_id'] ?? $employee->reporting_manager_id;
+                $fillData['status'] = $data['status'] ?? $employee->status;
+                $fillData['current_salary'] = $data['current_salary'] ?? $employee->current_salary;
+                $fillData['joining_date'] = $data['joining_date'] ?? $employee->joining_date;
+                $fillData['probation_end_date'] = $data['probation_end_date'] ?? $employee->probation_end_date;
+            }
+
+            $employee->update($fillData);
 
             return $employee;
         });

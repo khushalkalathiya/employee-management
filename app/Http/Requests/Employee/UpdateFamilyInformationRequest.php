@@ -8,6 +8,10 @@ class UpdateFamilyInformationRequest extends FormRequest
 {
     public function authorize(): bool
     {
+        $user = $this->route('user');
+        if (authId() === $user->id) {
+            return true;
+        }
         return has_permission('employee.edit');
     }
 

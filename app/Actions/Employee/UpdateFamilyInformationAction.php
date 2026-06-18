@@ -21,10 +21,14 @@ class UpdateFamilyInformationAction
                 ]);
             }
 
-            $family = $employee->familyInformation()->firstOrCreate([]);
-            $family->update($data);
+            $familyInformation = $employee->familyInformation;
+            if($familyInformation == null){
+                $familyInformation = $employee->familyInformation()->create($data);
+            } else {
+                $familyInformation->update($data);
+            }
 
-            return $family;
+            return $familyInformation;
         });
     }
 }

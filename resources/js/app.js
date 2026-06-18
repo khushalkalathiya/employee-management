@@ -10,6 +10,7 @@ window.flatpickr = flatpickr;
 Livewire.start();
 
 import './common';
+import './attendance';
 import './department';
 import './designation';
 import './leave-type';

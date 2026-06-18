@@ -53,18 +53,20 @@ class EmployeeController extends Controller
         }
     }
 
-    public function editBasicInformation()
+    public function editBasicInformation(User $user)
     {
-        $user = auth()->user();
         $roles = Role::pluck('display_name','name');
         $section = 'basic-information';
 
-        return view('profile.edit', compact('user', 'roles', 'section'));
+        return view('employees.edit', compact('user', 'roles', 'section'));
     }
 
     public function updateBasicInformation(UpdateBasicInformationRequest $request, User $user, \App\Actions\Employee\UpdateBasicInformationAction $action) {
         try {
             $action->handle($user, $request->validated());
+            if ($user->id === authId()) {
+                return redirect()->route('profile.basic-information.edit')->with('success', 'Basic information updated successfully.');
+            }
             return redirect()->route('employees.basic-information.edit', $user->id)->with('success', 'Basic information updated successfully.');
         } catch (\Throwable $e) {
             return back()->withInput()->with('error', $e->getMessage());
@@ -86,6 +88,9 @@ class EmployeeController extends Controller
     {
         try {
             $action->handle($user, $request->validated());
+            if ($user->id === authId()) {
+                return redirect()->route('profile.personal-details.edit')->with('success', 'Personal details updated successfully.');
+            }
             return redirect()->route('employees.personal-details.edit', $user->id)->with('success', 'Personal details updated successfully.');
         } catch (\Throwable $e) {
             return back()->withInput()->with('error', $e->getMessage());
@@ -103,6 +108,9 @@ class EmployeeController extends Controller
     {
         try {
             $action->handle($user, $request->validated());
+            if ($user->id === authId()) {
+                return redirect()->route('profile.family-information.edit')->with('success', 'Family information updated successfully.');
+            }
             return redirect()->route('employees.family-information.edit', $user->id)->with('success', 'Family information updated successfully.');
         } catch (\Throwable $e) {
             return back()->withInput()->with('error', $e->getMessage());
@@ -121,6 +129,9 @@ class EmployeeController extends Controller
     {
         try {
             $action->handle($user, $request->validated());
+            if ($user->id === authId()) {
+                return redirect()->route('profile.bank-account.edit')->with('success', 'Bank account details updated successfully.');
+            }
             return redirect()->route('employees.bank-account.edit', $user->id)->with('success', 'Bank account details updated successfully.');
         } catch (\Throwable $e) {
             return back()->withInput()->with('error', $e->getMessage());

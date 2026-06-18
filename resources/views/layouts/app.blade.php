@@ -559,7 +559,8 @@
                     <div class="space-y-4">
 
                         <button
-                            class="w-full rounded-xl bg-indigo-600 px-5 py-4 text-base font-semibold text-white transition hover:bg-indigo-700">
+                            class="w-full rounded-xl bg-indigo-600 px-5 py-4 text-base font-semibold text-white transition hover:bg-indigo-700"
+                            onclick="clockInAttendance()">
                             Clock In
                         </button>
 
