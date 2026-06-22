@@ -5,30 +5,33 @@ namespace App\Actions\Attendance;
 use App\Models\User;
 use App\Models\Attendance;
 use App\Models\AttendanceLog;
+use Illuminate\Validation\ValidationException;
+use Lorisleiva\Actions\Concerns\AsAction;
 
 class ClockInAttendanceAction
 {
-    public function execute(User $user): Attendance
+    use AsAction;
+
+    public function handle(User $user): Attendance
     {
-        $today = today();
+        $openAttendance = Attendance::query()
+            ->where('user_id', $user->id)
+            ->where('check_out', null)
+            ->latest('id')
+            ->first();
 
-        $attendance = Attendance::firstOrCreate(
-            [
-                'user_id' => $user->id,
-                'attendance_date' => $today,
-            ],
-            [
-                'check_in' => now()->format('H:i:s'),
-                'status' => 'present',
-            ]
-        );
-
-        if (! $attendance->check_in) {
-            $attendance->update([
-                'check_in' => now()->format('H:i:s'),
-                'status' => 'present',
+        if ($openAttendance) {
+            throw ValidationException::withMessages([
+                'attendance' => 'You are already clocked in. Please clock out first.',
             ]);
         }
+
+        $attendance = Attendance::create([
+            'user_id' => $user->id,
+            'attendance_date' => today(),
+            'check_in' => now(),
+            'status' => 'present',
+        ]);
 
         AttendanceLog::create([
             'attendance_id' => $attendance->id,

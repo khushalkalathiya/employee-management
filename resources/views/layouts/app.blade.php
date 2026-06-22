@@ -407,6 +407,7 @@
                 @endif
 
                 {{ $slot }}
+
             </main>
         </div>
     </div>
@@ -479,192 +480,443 @@
 
     </div>
 
-    <div class="timer-modal fixed inset-0 z-[9998] hidden bg-black/20 backdrop-blur-sm" id="timerFormModal">
+    <!-- ═══════════════ ATTENDANCE TIMER MODAL (DRAWER) ═══════════════ -->
+    <div class="timer-modal fixed inset-0 z-[9998] hidden bg-black/40 backdrop-blur-sm transition-all duration-300" id="timerFormModal">
+        <div class="timer-drawer absolute right-0 top-0 h-full w-full max-w-md translate-x-full overflow-y-auto border-l border-gray-200 bg-white shadow-2xl transition-transform duration-300 dark:border-gray-800 dark:bg-gray-950 flex flex-col">
+            
+            <!-- Close button -->
+            <div class="absolute right-4 top-4 z-10">
+                <button
+                    class="flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-500 transition hover:bg-gray-200 hover:text-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                    onclick="closeTimerDrawer()" type="button">
+                    <svg class="h-4 w-4" fill="none" stroke-width="2.5" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
 
-        <div
-            class="timer-drawer absolute right-0 top-0 h-full w-full max-w-xl translate-x-full overflow-y-auto border-l border-gray-200 bg-white shadow-2xl transition-transform duration-300 dark:border-gray-800 dark:bg-gray-950">
+            <!-- Profile and Info Header -->
+            <div class="relative overflow-hidden border-b border-gray-100 px-6 pb-6 pt-10 dark:border-gray-800/60 bg-gradient-to-b from-blue-50/50 via-white to-white dark:from-blue-950/20 dark:via-gray-950 dark:to-gray-950">
+                <div class="flex flex-col items-center text-center">
+                    @auth
+                        @php
+                            $user = auth()->user();
+                            $avatarUrl = $user->avatar ?: 'https://ui-avatars.com/api/?name=' . urlencode($user->full_name) . '&background=3b82f6&color=fff&size=128';
+                            $userName = $user->full_name;
+                            $userRole = $user->role ?: 'Employee';
+                        @endphp
+                    @else
+                        @php
+                            $avatarUrl = 'https://ui-avatars.com/api/?name=Guest+User&background=3b82f6&color=fff&size=128';
+                            $userName = 'Guest User';
+                            $userRole = 'Guest';
+                        @endphp
+                    @endauth
 
-            <button
-                class="close-icon absolute right-4 top-4 cursor-pointer text-gray-400 transition hover:text-gray-700 dark:hover:text-white"
-                onclick="closeTimerDrawer()" type="button">
-                <svg class="h-5 w-5" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </button>
-            <!-- content -->
-
-            <div class="flex min-h-full flex-col">
-
-                <!-- Header -->
-                <div class="border-b border-gray-200 px-6 py-8 dark:border-gray-800">
-
-                    <!-- Profile -->
-                    <div class="flex flex-col items-center text-center">
-
-                        <img alt="Profile" class="h-24 w-24 rounded-full border-4 border-white shadow-lg"
-                            src="https://ui-avatars.com/api/?name=Khushal+Baraiya&background=6366f1&color=fff&size=128">
-
-                        <h2 class="mt-4 text-xl font-semibold text-gray-900 dark:text-white">
-                            Khushal Baraiya
-                        </h2>
-
-                        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                            Project Head
-                        </p>
-
+                    <div class="relative group">
+                        <div class="absolute -inset-1 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 opacity-20 blur group-hover:opacity-40 transition duration-300"></div>
+                        <img alt="Profile Picture" class="relative h-20 w-20 rounded-full border-2 border-white dark:border-gray-900 object-cover shadow-md"
+                            src="{{ $avatarUrl }}">
                     </div>
 
+                    <h2 class="mt-3 text-lg font-bold text-gray-900 dark:text-white tracking-tight">
+                        {{ $userName }}
+                    </h2>
+
+                    <p class="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider mt-0.5">
+                        {{ $userRole }}
+                    </p>
+                    
+                    <div class="mt-2.5 flex items-center gap-1.5 rounded-full bg-gray-100 dark:bg-gray-800 px-3 py-1 text-xs text-gray-600 dark:text-gray-400">
+                        <span class="relative flex h-2 w-2">
+                            <span id="statusIndicatorDot" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75"></span>
+                            <span id="statusIndicatorDotInner" class="relative inline-flex rounded-full h-2 w-2 bg-gray-400"></span>
+                        </span>
+                        <span id="drawerStatusText" class="font-semibold">Checking status...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Content Area -->
+            <div class="flex-1 p-6 overflow-y-auto">
+                <!-- Skeleton Loader -->
+                <div id="attendanceSkeleton" class="space-y-4">
+                    <div class="animate-pulse space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="h-20 rounded-2xl bg-gray-100 dark:bg-gray-800/50"></div>
+                            <div class="h-20 rounded-2xl bg-gray-100 dark:bg-gray-800/50"></div>
+                        </div>
+                        <div class="h-12 rounded-xl bg-gray-100 dark:bg-gray-800/50"></div>
+                        <div class="h-40 rounded-2xl bg-gray-100 dark:bg-gray-800/50 mt-6"></div>
+                    </div>
                 </div>
 
-                <!-- Attendance -->
-                <div class="flex-1 p-6">
-
-                    <!-- Current Time -->
-                    <div
-                        class="mb-6 rounded-2xl border border-gray-200 bg-gray-50 p-5 text-center dark:border-gray-800 dark:bg-gray-900">
-
-                        <div class="text-sm text-gray-500">
-                            Current Time
+                <!-- Main Content -->
+                <div class="hidden" id="attendanceContent" data-url="{{ route('attendance.current-status') }}">
+                    
+                    <!-- Dual Timer Grid -->
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        
+                        <!-- Working Timer (Left) -->
+                        <div class="relative overflow-hidden rounded-2xl border border-emerald-100 bg-emerald-50/20 p-4 dark:border-emerald-500/10 dark:bg-emerald-500/5 transition-all duration-300">
+                            <div class="flex items-center gap-2">
+                                <span class="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                                <span class="text-[10px] font-semibold text-emerald-800 dark:text-emerald-400 uppercase tracking-wider">Work Hours</span>
+                            </div>
+                            <div class="mt-2 text-2xl font-bold tracking-tight text-emerald-950 dark:text-emerald-200" id="workingTimer">
+                                00:00:00
+                            </div>
+                            <div class="text-[9px] text-emerald-600 dark:text-emerald-500 mt-0.5">Total active time</div>
                         </div>
 
-                        <div class="mt-2 text-4xl font-bold tracking-wider">
-                            10:25:48
-                        </div>
-
-                        <div class="mt-2 text-sm text-gray-500">
-                            Monday, 15 June 2026
+                        <!-- Break Timer (Right) -->
+                        <div class="relative overflow-hidden rounded-2xl border border-amber-100 bg-amber-50/20 p-4 dark:border-amber-500/10 dark:bg-amber-500/5 transition-all duration-300">
+                            <div class="flex items-center gap-2">
+                                <span class="flex h-2 w-2 rounded-full bg-amber-500"></span>
+                                <span class="text-[10px] font-semibold text-amber-800 dark:text-amber-400 uppercase tracking-wider">Break Time</span>
+                            </div>
+                            <div class="mt-2 text-2xl font-bold tracking-tight text-amber-950 dark:text-amber-200" id="breakTimer">
+                                00:00:00
+                            </div>
+                            <div class="text-[9px] text-amber-600 dark:text-amber-500 mt-0.5">Total break time</div>
                         </div>
 
                     </div>
 
-                    <!-- Working Status -->
-                    <div
-                        class="mb-6 rounded-2xl border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950">
-
-                        <div class="flex items-center justify-between">
-
-                            <span class="text-sm font-medium text-green-700 dark:text-green-400">
-                                Status
-                            </span>
-
-                            <span
-                                class="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700 dark:bg-green-900 dark:text-green-300">
-                                Working
-                            </span>
-
-                        </div>
-                    </div>
-
-                    <!-- Clock In State -->
-                    <div class="space-y-4">
-
-                        <button
-                            class="w-full rounded-xl bg-indigo-600 px-5 py-4 text-base font-semibold text-white transition hover:bg-indigo-700"
-                            onclick="clockInAttendance()">
+                    <!-- Dynamic Action Buttons Section -->
+                    <div class="space-y-3">
+                        
+                        <!-- State 1: Clock In Button -->
+                        <button id="clockInBtn" class="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-4 font-semibold text-white shadow-lg shadow-blue-500/20 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] transition-all duration-200">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                <path d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 01-3-3h7a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                             Clock In
                         </button>
 
-                    </div>
-
-                    <!-- Show After Clock In -->
-                    <div class="mt-4 hidden space-y-4">
-
-                        <div class="grid grid-cols-2 gap-4">
-
-                            <button
-                                class="rounded-xl bg-red-600 px-5 py-4 text-base font-semibold text-white transition hover:bg-red-700">
+                        <!-- State 2 & 3: Side-by-side Controls (Hidden by default) -->
+                        <div id="activeControls" class="grid grid-cols-2 gap-4 hidden">
+                            <!-- Clock Out (Left) -->
+                            <button id="clockOutBtn" class="flex items-center justify-center gap-2 rounded-xl bg-rose-500 px-5 py-4 font-semibold text-white shadow-lg shadow-rose-500/20 hover:bg-rose-600 focus:outline-none focus:ring-2 focus:ring-rose-500/40 active:scale-[0.98] transition-all duration-200">
+                                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
                                 Clock Out
                             </button>
 
-                            <button
-                                class="rounded-xl bg-amber-500 px-5 py-4 text-base font-semibold text-white transition hover:bg-amber-600">
-                                Break
+                            <!-- Break In / Break Out (Right) -->
+                            <button id="breakToggleBtn" class="flex items-center justify-center gap-2 rounded-xl px-5 py-4 font-semibold text-white active:scale-[0.98] transition-all duration-200">
+                                <svg id="breakIcon" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <!-- Dynamic -->
+                                </svg>
+                                <span id="breakBtnText">Break In</span>
                             </button>
-
                         </div>
 
                     </div>
 
-                    <!-- Today's Summary -->
-                    <div class="mt-8 rounded-2xl border border-gray-200 dark:border-gray-800">
-
-                        <div class="border-b border-gray-200 p-4 dark:border-gray-800">
-                            <h3 class="font-semibold">
-                                Today's Activity
+                    <!-- Attendance Log Section -->
+                    <div class="mt-8">
+                        <div class="flex items-center justify-between border-b border-gray-100 pb-3 dark:border-gray-800/60 mb-4">
+                            <h3 class="font-bold text-gray-800 dark:text-gray-200 text-sm tracking-tight flex items-center gap-1.5">
+                                <svg class="h-4.5 w-4.5 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Today's Activity Logs
                             </h3>
+                            <span id="logCountTag" class="rounded-full bg-gray-100 px-2.5 py-0.5 text-[10px] font-semibold text-gray-600 dark:bg-gray-800 dark:text-gray-400">
+                                0 logs
+                            </span>
                         </div>
 
-                        <div class="divide-y divide-gray-200 dark:divide-gray-800">
-
-                            <div class="flex items-center justify-between p-4">
-                                <span class="text-sm text-gray-500">
-                                    Clock In
-                                </span>
-
-                                <span class="font-medium">
-                                    09:05 AM
-                                </span>
-                            </div>
-
-                            <div class="flex items-center justify-between p-4">
-                                <span class="text-sm text-gray-500">
-                                    Break Time
-                                </span>
-
-                                <span class="font-medium">
-                                    00:35 Hrs
-                                </span>
-                            </div>
-
-                            <div class="flex items-center justify-between p-4">
-                                <span class="text-sm text-gray-500">
-                                    Working Hours
-                                </span>
-
-                                <span class="font-medium text-green-600">
-                                    07:25 Hrs
-                                </span>
-                            </div>
-
+                        <!-- Timeline container -->
+                        <div class="relative border-l border-gray-100 dark:border-gray-800/80 pl-5 space-y-5 ml-3" id="attendanceLogs">
+                            <!-- Populated by JavaScript -->
                         </div>
-
-                    </div>
-
-                    <!-- Recent Logs -->
-                    <div class="mt-6 rounded-2xl border border-gray-200 dark:border-gray-800">
-
-                        <div class="border-b border-gray-200 p-4 dark:border-gray-800">
-                            <h3 class="font-semibold">
-                                Recent Logs
-                            </h3>
-                        </div>
-
-                        <div class="space-y-3 p-4">
-
-                            <div class="flex items-center justify-between text-sm">
-                                <span>Clock In</span>
-                                <span class="text-green-600">09:05 AM</span>
-                            </div>
-
-                            <div class="flex items-center justify-between text-sm">
-                                <span>Break Started</span>
-                                <span class="text-amber-600">01:00 PM</span>
-                            </div>
-
-                            <div class="flex items-center justify-between text-sm">
-                                <span>Break Ended</span>
-                                <span class="text-blue-600">01:35 PM</span>
-                            </div>
-
-                        </div>
-
                     </div>
 
                 </div>
-
             </div>
+
         </div>
     </div>
+
+    <!-- Attendance Logic JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const timerModal = document.getElementById('timerFormModal');
+            const skeleton = document.getElementById('attendanceSkeleton');
+            const content = document.getElementById('attendanceContent');
+            const workingTimerEl = document.getElementById('workingTimer');
+            const breakTimerEl = document.getElementById('breakTimer');
+            const drawerStatusText = document.getElementById('drawerStatusText');
+            const statusIndicatorDot = document.getElementById('statusIndicatorDot');
+            const statusIndicatorDotInner = document.getElementById('statusIndicatorDotInner');
+            
+            const clockInBtn = document.getElementById('clockInBtn');
+            const activeControls = document.getElementById('activeControls');
+            const clockOutBtn = document.getElementById('clockOutBtn');
+            const breakToggleBtn = document.getElementById('breakToggleBtn');
+            const breakBtnText = document.getElementById('breakBtnText');
+            const breakIcon = document.getElementById('breakIcon');
+
+            const statusUrl = content.getAttribute('data-url');
+            const checkInUrl = "{{ route('attendance.check-in') }}";
+            const checkOutUrl = "{{ route('attendance.check-out') }}";
+            const breakStartUrl = "{{ route('attendance.break-start') }}";
+            const breakEndUrl = "{{ route('attendance.break-end') }}";
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+            let workingSeconds = 0;
+            let breakSeconds = 0;
+            let isClockedIn = false;
+            let isOnBreak = false;
+            let timerInterval = null;
+
+            const logMeta = {
+                clock_in: {
+                    label: 'Clock In',
+                    bgColor: 'bg-emerald-100 dark:bg-emerald-950/40',
+                    textColor: 'text-emerald-600 dark:text-emerald-400',
+                    icon: '<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+                },
+                clock_out: {
+                    label: 'Clock Out',
+                    bgColor: 'bg-rose-100 dark:bg-rose-950/40',
+                    textColor: 'text-rose-600 dark:text-rose-400',
+                    icon: '<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+                },
+                break_start: {
+                    label: 'Break In (Paused)',
+                    bgColor: 'bg-amber-100 dark:bg-amber-950/40',
+                    textColor: 'text-amber-600 dark:text-amber-400',
+                    icon: '<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+                },
+                break_end: {
+                    label: 'Break Out (Resumed)',
+                    bgColor: 'bg-blue-100 dark:bg-blue-950/40',
+                    textColor: 'text-blue-600 dark:text-blue-400',
+                    icon: '<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+                }
+            };
+
+            function formatSeconds(totalSecs) {
+                const hrs = Math.floor(totalSecs / 3600);
+                const mins = Math.floor((totalSecs % 3600) / 60);
+                const secs = totalSecs % 60;
+                return [
+                    hrs.toString().padStart(2, '0'),
+                    mins.toString().padStart(2, '0'),
+                    secs.toString().padStart(2, '0')
+                ].join(':');
+            }
+
+            function startLocalTicking() {
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    if (isClockedIn) {
+                        if (isOnBreak) {
+                            breakSeconds++;
+                            breakTimerEl.textContent = formatSeconds(breakSeconds);
+                        } else {
+                            workingSeconds++;
+                            workingTimerEl.textContent = formatSeconds(workingSeconds);
+                        }
+                    }
+                }, 1000);
+            }
+
+            function stopLocalTicking() {
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+            }
+
+            function renderLogs(logs) {
+                const logsContainer = document.getElementById('attendanceLogs');
+                const logCountTag = document.getElementById('logCountTag');
+                
+                if (!logs || logs.length === 0) {
+                    logsContainer.innerHTML = `
+                        <div class="text-center py-6 text-gray-400 dark:text-gray-600 text-xs">
+                            No attendance logs recorded for today.
+                        </div>
+                    `;
+                    logCountTag.textContent = '0 logs';
+                    return;
+                }
+
+                logCountTag.textContent = `${logs.length} ${logs.length === 1 ? 'log' : 'logs'}`;
+                
+                logsContainer.innerHTML = logs.map((log) => {
+                    const meta = logMeta[log.type] || {
+                        label: log.type,
+                        bgColor: 'bg-gray-100 dark:bg-gray-800',
+                        textColor: 'text-gray-600 dark:text-gray-400',
+                        icon: '<svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+                    };
+
+                    return `
+                        <div class="relative pl-6 pb-2 last:pb-0">
+                            <!-- Dot with Icon Centered -->
+                            <span class="absolute left-[-34px] top-0 flex h-7.5 w-7.5 items-center justify-center rounded-full ${meta.bgColor} ${meta.textColor} ring-4 ring-white dark:ring-gray-950 transition-all duration-300">
+                                ${meta.icon}
+                            </span>
+                            <div class="flex flex-col">
+                                <span class="text-xs font-bold text-gray-800 dark:text-gray-200 transition-colors">${meta.label}</span>
+                                <span class="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">${log.display_time}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            function updateUIState() {
+                // Formatting timers initially
+                workingTimerEl.textContent = formatSeconds(workingSeconds);
+                breakTimerEl.textContent = formatSeconds(breakSeconds);
+
+                if (!isClockedIn) {
+                    // State 1: Clocked out
+                    clockInBtn.classList.remove('hidden');
+                    activeControls.classList.add('hidden');
+                    
+                    // Update indicator
+                    drawerStatusText.textContent = "Offline / Clocked Out";
+                    statusIndicatorDot.className = "absolute inline-flex h-full w-full rounded-full bg-gray-400 opacity-75";
+                    statusIndicatorDotInner.className = "relative inline-flex rounded-full h-2 w-2 bg-gray-400";
+                    stopLocalTicking();
+                } else {
+                    // State 2 & 3: Clocked in
+                    clockInBtn.classList.add('hidden');
+                    activeControls.classList.remove('hidden');
+                    
+                    if (isOnBreak) {
+                        // State 3: On break
+                        drawerStatusText.textContent = "On Break";
+                        statusIndicatorDot.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75";
+                        statusIndicatorDotInner.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-400";
+
+                        // Break Toggle Button Style: Green/Emerald for "Break Out" (Resume)
+                        breakToggleBtn.className = "flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 hover:shadow-emerald-600/30 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 active:scale-[0.98] transition-all duration-200";
+                        breakBtnText.textContent = "Break Out";
+                        breakIcon.innerHTML = '<path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/>';
+                    } else {
+                        // State 2: Active Work
+                        drawerStatusText.textContent = "Active / Clocked In";
+                        statusIndicatorDot.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75";
+                        statusIndicatorDotInner.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
+
+                        // Break Toggle Button Style: Amber for "Break In" (Pause)
+                        breakToggleBtn.className = "flex items-center justify-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20 hover:shadow-amber-600/30 focus:outline-none focus:ring-2 focus:ring-amber-500/40 active:scale-[0.98] transition-all duration-200";
+                        breakBtnText.textContent = "Break In";
+                        breakIcon.innerHTML = '<path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/>';
+                    }
+                    startLocalTicking();
+                }
+            }
+
+            async function fetchAttendanceStatus(showLoader = false) {
+                if (showLoader) {
+                    skeleton.classList.remove('hidden');
+                    content.classList.add('hidden');
+                }
+                
+                try {
+                    const response = await fetch(statusUrl, {
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    const res = await response.json();
+                    if (res.success) {
+                        const data = res.data;
+                        isClockedIn = data.is_clocked_in;
+                        isOnBreak = data.is_on_break;
+                        workingSeconds = data.working_seconds || 0;
+                        breakSeconds = data.break_seconds || 0;
+                        
+                        renderLogs(data.logs);
+                        updateUIState();
+                    }
+                } catch (err) {
+                    console.error('Failed to fetch status:', err);
+                } finally {
+                    skeleton.classList.add('hidden');
+                    content.classList.remove('hidden');
+                }
+            }
+
+            async function handlePostAction(url, button) {
+                const originalHtml = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                `;
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                        if (window.showToast) {
+                            window.showToast(result.message || 'Updated successfully', 'success');
+                        }
+                        // Refresh Livewire table components if they are on page
+                        if (typeof Livewire !== 'undefined') {
+                            Livewire.dispatch('refresh-table');
+                        }
+                        await fetchAttendanceStatus();
+                    } else {
+                        if (window.showToast) {
+                            window.showToast(result.message || 'Operation failed', 'error');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Action error:', error);
+                    if (window.showToast) {
+                        window.showToast('Server error. Please try again.', 'error');
+                    }
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = originalHtml;
+                }
+            }
+
+            // Event Listeners for actions
+            clockInBtn.addEventListener('click', () => handlePostAction(checkInUrl, clockInBtn));
+            clockOutBtn.addEventListener('click', () => handlePostAction(checkOutUrl, clockOutBtn));
+            breakToggleBtn.addEventListener('click', () => {
+                const targetUrl = isOnBreak ? breakEndUrl : breakStartUrl;
+                handlePostAction(targetUrl, breakToggleBtn);
+            });
+
+            // Intercept drawer opening to fetch latest status
+            const originalOpenTimerDrawer = window.openTimerDrawer;
+            window.openTimerDrawer = function () {
+                if (originalOpenTimerDrawer) originalOpenTimerDrawer();
+                fetchAttendanceStatus(true);
+            };
+
+            // Fetch once on page load to initialize background state
+            fetchAttendanceStatus(false);
+        });
+    </script>
+
 
 
     @livewireScriptConfig

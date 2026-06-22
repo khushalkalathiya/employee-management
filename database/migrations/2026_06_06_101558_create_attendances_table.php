@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->date('attendance_date');
-            $table->time('check_in')->nullable();
-            $table->time('check_out')->nullable();
+            $table->dateTime('check_in')->nullable();
+            $table->dateTime('check_out')->nullable();
             $table->integer('total_minutes')->default(0);
             $table->integer('total_work_minutes')->default(0);
             $table->integer('total_break_minutes')->default(0);
@@ -24,6 +24,10 @@ return new class extends Migration
             $table->string('status');
             $table->text('notes')->nullable();
             $table->timestamps();
+
+            $table->index(['user_id', 'check_out']);
+            $table->index(['user_id', 'attendance_date']);
+            $table->index('status');
         });
     }
 

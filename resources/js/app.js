@@ -16,4 +16,4 @@ import './designation';
 import './leave-type';
 import './holiday';
 import './leave';
-import './settings';
+import './settings'
