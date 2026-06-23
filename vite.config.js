@@ -13,4 +13,11 @@ export default defineConfig({
         }),
         tailwindcss(),
     ],
+    server: {
+        watch: {
+            // Prevent Vite from watching Laravel's compiled view cache on Windows.
+            // These .tmp files get locked by PHP during compilation, causing EBUSY crashes.
+            ignored: ['**/storage/framework/views/**'],
+        },
+    },
 });
