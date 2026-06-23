@@ -10,6 +10,7 @@ use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\SettingController;
+use App\Livewire\Chat\ChatDashboard;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [ProfileController::class, 'dashboard'])->middleware(['auth', 'verified'])->name('dashboard');
@@ -135,6 +136,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('/{attendance}', [AttendanceController::class, 'update'])->middleware('permission:attendance.edit')->name('update');
         Route::delete('/{attendance}', [AttendanceController::class, 'destroy'])->middleware('permission:attendance.delete')->name('destroy');
     });
+
+    // ─── Chat ─────────────────────────────────────────────────────────────────
+    Route::get('/chat', ChatDashboard::class)->name('chat.index');
 });
 
 require __DIR__.'/auth.php';

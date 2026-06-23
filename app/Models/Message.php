@@ -3,13 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Message extends Model implements HasMedia
+class Message extends Model
 {
-    use SoftDeletes, InteractsWithMedia;
+    use SoftDeletes;
 
     protected $fillable = [
         'conversation_id',
@@ -26,24 +26,39 @@ class Message extends Model implements HasMedia
         'edited_at' => 'datetime',
     ];
 
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('message-attachments')
-            ->useDisk(config('media-library.disk_name'));
-    }
+    // ─── Relationships ────────────────────────────────────────────────────────
 
-    public function conversation()
+    public function conversation(): BelongsTo
     {
         return $this->belongsTo(Conversation::class);
     }
 
-    public function sender()
+    public function sender(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sender_id');
     }
 
-    public function replyTo()
+    public function replyTo(): BelongsTo
     {
         return $this->belongsTo(Message::class, 'reply_to_message_id');
+    }
+
+    public function replies(): HasMany
+    {
+        return $this->hasMany(Message::class, 'reply_to_message_id');
+    }
+
+    // ─── Scopes ───────────────────────────────────────────────────────────────
+
+    public function scopeText($query)
+    {
+        return $query->where('type', 'text');
+    }
+
+    // ─── Helpers ──────────────────────────────────────────────────────────────
+
+    public function isOwnedBy(int $userId): bool
+    {
+        return $this->sender_id === $userId;
     }
 }
