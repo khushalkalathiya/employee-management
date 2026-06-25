@@ -21,11 +21,17 @@ class Employee extends Model
         'reporting_manager_id', // user_id
         'status', // active, probation, notice, resigned, terminated
         'current_salary',
+        'is_hourly', // true = paid per hour, false = monthly
         'address',
         'city',
         'state',
         'country',
         'postal_code',
+    ];
+
+    protected $casts = [
+        'is_hourly'      => 'boolean',
+        'current_salary' => 'decimal:4',
     ];
 
     public function user()

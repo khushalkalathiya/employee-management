@@ -10,6 +10,7 @@ use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\HolidayController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\PayrollController;
 use App\Livewire\Chat\ChatDashboard;
 use Illuminate\Support\Facades\Route;
 
@@ -139,6 +140,37 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ─── Chat ─────────────────────────────────────────────────────────────────
     Route::get('/chat', ChatDashboard::class)->name('chat.index');
+
+    // ─── Payroll ──────────────────────────────────────────────────────────────
+    Route::prefix('payroll')->name('payroll.')->group(function () {
+        Route::get('/', [PayrollController::class, 'index'])
+            ->middleware('permission:payroll.view|payroll.view.own')
+            ->name('index');
+        Route::get('/create', [PayrollController::class, 'create'])
+            ->middleware('permission:payroll.create')
+            ->name('create');
+        Route::post('/', [PayrollController::class, 'store'])
+            ->middleware('permission:payroll.create')
+            ->name('store');
+        Route::post('/preview', [PayrollController::class, 'preview'])
+            ->middleware('permission:payroll.create|payroll.edit')
+            ->name('preview');
+        Route::get('/{salary}', [PayrollController::class, 'show'])
+            ->middleware('permission:payroll.view|payroll.view.own')
+            ->name('show');
+        Route::get('/{salary}/edit', [PayrollController::class, 'edit'])
+            ->middleware('permission:payroll.edit')
+            ->name('edit');
+        Route::put('/{salary}', [PayrollController::class, 'update'])
+            ->middleware('permission:payroll.edit')
+            ->name('update');
+        Route::delete('/{salary}', [PayrollController::class, 'destroy'])
+            ->middleware('permission:payroll.delete')
+            ->name('destroy');
+        Route::post('/{salary}/mark-paid', [PayrollController::class, 'markPaid'])
+            ->middleware('permission:payroll.edit')
+            ->name('mark-paid');
+    });
 });
 
 require __DIR__.'/auth.php';

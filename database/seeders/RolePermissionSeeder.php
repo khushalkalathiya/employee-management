@@ -62,6 +62,13 @@ class RolePermissionSeeder extends Seeder
             'attendance.delete',
             'attendance.own',
 
+            // Payroll
+            'payroll.view',    
+            'payroll.view.own',
+            'payroll.create',  
+            'payroll.edit',    
+            'payroll.delete',  
+            
             // Leave Types
             'leave_type.view',
             'leave_type.create',
