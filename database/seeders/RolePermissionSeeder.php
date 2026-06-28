@@ -64,7 +64,7 @@ class RolePermissionSeeder extends Seeder
 
             // Payroll
             'payroll.view',    
-            'payroll.view.own',
+            'payroll.own',
             'payroll.create',  
             'payroll.edit',    
             'payroll.delete',  
@@ -87,14 +87,19 @@ class RolePermissionSeeder extends Seeder
             'holiday.create',
             'holiday.edit',
             'holiday.delete',
-
             // Settings
             'settings.general.view',
             'settings.general.edit',
             'settings.work_schedule.view',
             'settings.work_schedule.edit',
-        ];
 
+            // Work Logs
+            'work_log.view',
+            'work_log.create',
+            'work_log.edit',
+            'work_log.delete',
+            'work_log.own',
+        ];
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate([
@@ -104,11 +109,27 @@ class RolePermissionSeeder extends Seeder
         }
 
         $superAdmin = Role::findByName('superadmin');
-
         $superAdmin->syncPermissions(
             Permission::whereNotIn('name', [
                 'leave.own',
+                'payroll.own',
+                'work_log.own',
+                'attendance.own',
             ])->get()
         );
+
+        $employeeRole = Role::findByName('employee');
+        if ($employeeRole) {
+            $employeeRole->syncPermissions([
+                'leave.own',
+                'leave.view',
+                'leave.create',
+                'attendance.own',
+                'attendance.view',
+                'attendance.create',
+                'payroll.own',
+                'payroll.view',
+            ]);
+        }
     }
 }

@@ -27,11 +27,13 @@ class Employee extends Model
         'state',
         'country',
         'postal_code',
+        'auto_break_enabled',
     ];
 
     protected $casts = [
-        'is_hourly'      => 'boolean',
-        'current_salary' => 'decimal:4',
+        'is_hourly'          => 'boolean',
+        'current_salary'     => 'decimal:4',
+        'auto_break_enabled' => 'boolean',
     ];
 
     public function user()
@@ -87,6 +89,11 @@ class Employee extends Model
     public function leaveRequests()
     {
         return $this->hasMany(LeaveRequest::class);
+    }
+
+    public function works()
+    {
+        return $this->hasMany(EmployeeWork::class);
     }
 }
 
