@@ -17,6 +17,11 @@ class Attendance extends Model
         'overtime_minutes',
         'status',
         'notes',
+        'old_data',
+    ];
+
+    protected $casts = [
+        'old_data' => 'array',
     ];
 
     public function user()

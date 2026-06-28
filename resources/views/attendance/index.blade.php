@@ -1,3 +1,7 @@
 <x-app-layout>
-    <livewire:attendance.attendance-table />
+    @if(auth()->user()?->can('attendance.own'))
+        <livewire:attendance.employee-attendance />
+    @else
+        <livewire:attendance.admin-attendance />
+    @endif
 </x-app-layout>

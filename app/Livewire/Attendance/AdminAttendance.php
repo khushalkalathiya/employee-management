@@ -21,6 +21,14 @@ class AdminAttendance extends Component
     public string $sortField     = 'attendance_date';
     public string $sortDirection = 'desc';
 
+    // View Modal
+    public ?int   $viewingAttendanceId = null;
+    public array  $viewingLogs         = [];
+    public ?array $viewingRecord       = null;
+
+    // Delete confirmation
+    public ?int   $deletingId = null;
+
     protected $queryString = [
         'search'       => ['except' => ''],
         'filterStatus' => ['except' => ''],
@@ -61,6 +69,67 @@ class AdminAttendance extends Component
     public function refresh(): void
     {
         $this->resetPage();
+    }
+
+    // ── View Modal ───────────────────────────────────────────────
+    public function viewAttendance(int $id): void
+    {
+        $record = Attendance::with(['logs', 'user'])->findOrFail($id);
+        $this->viewingAttendanceId = $id;
+        $this->viewingRecord = [
+            'date'         => $record->attendance_date,
+            'employee_name'=> $record->user?->full_name,
+            'check_in'     => $record->check_in,
+            'check_out'    => $record->check_out,
+            'status'       => $record->status,
+            'work_minutes' => $record->total_work_minutes,
+            'break_minutes'=> $record->total_break_minutes,
+            'overtime'     => $record->overtime_minutes,
+            'notes'        => $record->notes,
+        ];
+
+        $this->viewingLogs = $record->logs
+            ->sortBy('action_time')
+            ->values()
+            ->map(fn ($log) => [
+                'type' => $log->action_type,
+                'time' => $log->action_time,
+            ])->toArray();
+
+        $this->dispatch('open-view-modal');
+    }
+
+    public function closeViewModal(): void
+    {
+        $this->viewingAttendanceId = null;
+        $this->viewingRecord       = null;
+        $this->viewingLogs         = [];
+    }
+
+    // ── Delete ───────────────────────────────────────────────────
+    public function confirmDelete(int $id): void
+    {
+        abort_unless(auth()->user()?->can('attendance.delete'), 403);
+        $this->deletingId = $id;
+        $this->dispatch('open-delete-confirm');
+    }
+
+    public function deleteAttendance(): void
+    {
+        abort_unless(auth()->user()?->can('attendance.delete'), 403);
+
+        if ($this->deletingId) {
+            $record = Attendance::findOrFail($this->deletingId);
+            $record->delete();
+            $this->deletingId = null;
+            $this->dispatch('attendance-deleted');
+            session()->flash('success', 'Attendance record deleted.');
+        }
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->deletingId = null;
     }
 
     public function render()

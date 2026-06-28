@@ -23,6 +23,7 @@ return new class extends Migration
             $table->integer('overtime_minutes')->default(0);
             $table->string('status');
             $table->text('notes')->nullable();
+            $table->json('old_data')->nullable();
             $table->timestamps();
 
             $table->index(['user_id', 'check_out']);

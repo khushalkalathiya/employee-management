@@ -3,6 +3,7 @@
 namespace App\Livewire\Attendance;
 
 use App\Models\Attendance;
+use App\Models\AttendanceLog;
 use App\Models\Holiday;
 use App\Models\LeaveRequest;
 use App\Models\Setting;
@@ -20,20 +21,24 @@ class EmployeeAttendance extends Component
     public string $dateFrom;
     public string $dateTo;
     public string $filterStatus = '';
-    public int $perPage = 15;
+    public int    $perPage = 15;
 
     // Analytics
-    public int $presentDays    = 0;
-    public int $absentDays     = 0;
-    public int $leaveDays      = 0;
-    public string $totalWorkHours    = '0h 0m';
-    public string $requiredHours     = '0h 0m';
-    public string $overtimeHours     = '0h 0m';
-    public string $pendingHours      = '0h 0m';
+    public string $totalWorkHours  = '0h 0m';
+    public string $overtimeHours   = '0h 0m';
+    public string $pendingHours    = '0h 0m';
+    public int    $leaveDays       = 0;
+
+    // View Modal
+    public ?int   $viewingAttendanceId = null;
+    public array  $viewingLogs         = [];
+    public ?array $viewingRecord       = null;
+
+    // Delete confirmation
+    public ?int   $deletingId = null;
 
     public function mount(): void
     {
-        // Security: this component is ONLY for users with attendance.own permission
         abort_unless(auth()->user()?->can('attendance.own'), 403);
 
         $this->dateFrom = now()->startOfMonth()->format('Y-m-d');
@@ -42,22 +47,9 @@ class EmployeeAttendance extends Component
         $this->computeAnalytics();
     }
 
-    public function updatedDateFrom(): void
-    {
-        $this->resetPage();
-        $this->computeAnalytics();
-    }
-
-    public function updatedDateTo(): void
-    {
-        $this->resetPage();
-        $this->computeAnalytics();
-    }
-
-    public function updatedFilterStatus(): void
-    {
-        $this->resetPage();
-    }
+    public function updatedDateFrom(): void { $this->resetPage(); $this->computeAnalytics(); }
+    public function updatedDateTo(): void   { $this->resetPage(); $this->computeAnalytics(); }
+    public function updatedFilterStatus(): void { $this->resetPage(); }
 
     #[On('refresh-table')]
     public function refresh(): void
@@ -66,140 +58,151 @@ class EmployeeAttendance extends Component
         $this->computeAnalytics();
     }
 
+    // ── View Modal ───────────────────────────────────────────────
+    public function viewAttendance(int $id): void
+    {
+        $record = Attendance::with('logs')->findOrFail($id);
+        abort_unless($record->user_id === auth()->id(), 403);
+
+        $this->viewingAttendanceId = $id;
+        $this->viewingRecord = [
+            'date'         => $record->attendance_date,
+            'check_in'     => $record->check_in,
+            'check_out'    => $record->check_out,
+            'status'       => $record->status,
+            'work_minutes' => $record->total_work_minutes,
+            'break_minutes'=> $record->total_break_minutes,
+            'overtime'     => $record->overtime_minutes,
+            'notes'        => $record->notes,
+        ];
+
+        $this->viewingLogs = $record->logs
+            ->sortBy('action_time')
+            ->values()
+            ->map(fn ($log) => [
+                'type' => $log->action_type,
+                'time' => $log->action_time,
+            ])->toArray();
+
+        $this->dispatch('open-view-modal');
+    }
+
+    public function closeViewModal(): void
+    {
+        $this->viewingAttendanceId = null;
+        $this->viewingRecord       = null;
+        $this->viewingLogs         = [];
+    }
+
+    // ── Delete ───────────────────────────────────────────────────
+    public function confirmDelete(int $id): void
+    {
+        abort_unless(auth()->user()?->can('attendance.delete'), 403);
+        $this->deletingId = $id;
+        $this->dispatch('open-delete-confirm');
+    }
+
+    public function deleteAttendance(): void
+    {
+        abort_unless(auth()->user()?->can('attendance.delete'), 403);
+
+        if ($this->deletingId) {
+            $record = Attendance::findOrFail($this->deletingId);
+            abort_unless($record->user_id === auth()->id(), 403);
+            $record->delete();
+            $this->deletingId = null;
+            $this->computeAnalytics();
+            $this->dispatch('attendance-deleted');
+            session()->flash('success', 'Attendance record deleted.');
+        }
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->deletingId = null;
+    }
+
+    // ── Analytics ────────────────────────────────────────────────
     private function computeAnalytics(): void
     {
-        $userId = authId();
+        $userId = auth()->id();
         $from   = Carbon::parse($this->dateFrom)->startOfDay();
         $to     = Carbon::parse($this->dateTo)->endOfDay();
 
-        // All attendance records in range
         $attendances = Attendance::query()
             ->where('user_id', $userId)
             ->whereBetween('attendance_date', [$from->toDateString(), $to->toDateString()])
             ->get();
 
-        // Work schedule settings
-        $settings = Cache::remember('settings', 600, function () {
-            return Setting::pluck('value', 'key');
-        });
+        $settings = collect(Cache::remember('settings', 600, fn () =>
+            Setting::pluck('value', 'key')->toArray()
+        ))->toArray();
 
-        // Holidays in range
         $holidays = Holiday::query()
             ->where(function ($q) use ($from, $to) {
                 $q->whereBetween('start', [$from, $to])
                     ->orWhereBetween('end', [$from, $to])
-                    ->orWhere(function ($q2) use ($from, $to) {
-                        $q2->where('start', '<=', $from)->where('end', '>=', $to);
-                    });
-            })
-            ->get();
+                    ->orWhere(fn ($q2) => $q2->where('start', '<=', $from)->where('end', '>=', $to));
+            })->get();
 
         $holidayDates = [];
-        foreach ($holidays as $holiday) {
-            $period = CarbonPeriod::create(
-                Carbon::parse($holiday->start)->toDateString(),
-                Carbon::parse($holiday->end)->toDateString()
-            );
-            foreach ($period as $date) {
-                $holidayDates[] = $date->toDateString();
+        foreach ($holidays as $h) {
+            foreach (CarbonPeriod::create(Carbon::parse($h->start)->toDateString(), Carbon::parse($h->end)->toDateString()) as $d) {
+                $holidayDates[] = $d->toDateString();
             }
         }
         $holidayDates = array_unique($holidayDates);
 
-        // Approved leaves in range
         $approvedLeaves = LeaveRequest::query()
             ->where('user_id', $userId)
             ->where('status', 'approved')
-            ->where(function ($q) use ($from, $to) {
-                $q->whereBetween('start_datetime', [$from, $to])
-                    ->orWhereBetween('end_datetime', [$from, $to]);
-            })
+            ->where(fn ($q) => $q->whereBetween('start_datetime', [$from, $to])->orWhereBetween('end_datetime', [$from, $to]))
             ->get();
 
         $leaveDates = [];
         foreach ($approvedLeaves as $leave) {
-            $period = CarbonPeriod::create(
-                Carbon::parse($leave->start_datetime)->toDateString(),
-                Carbon::parse($leave->end_datetime)->toDateString()
-            );
-            foreach ($period as $date) {
-                $leaveDates[] = $date->toDateString();
+            foreach (CarbonPeriod::create(Carbon::parse($leave->start_datetime)->toDateString(), Carbon::parse($leave->end_datetime)->toDateString()) as $d) {
+                $leaveDates[] = $d->toDateString();
             }
         }
         $leaveDates = array_unique($leaveDates);
 
-        // Iterate over all dates in the range to compute working days
-        $period = CarbonPeriod::create($from->toDateString(), $to->toDateString());
-        $workingDays     = 0;
+        $period          = CarbonPeriod::create($from->toDateString(), $to->toDateString());
         $requiredMinutes = 0;
-        $dayNames        = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'];
 
         foreach ($period as $date) {
-            if ($date->isAfter(now())) {
-                break; // Don't count future days
-            }
-            $dayName = strtolower($date->format('l'));
-
-            // Skip non-working days per schedule
+            if ($date->isAfter(now())) break;
+            $dayName   = strtolower($date->format('l'));
             $isWorking = filter_var($settings["{$dayName}_working"] ?? false, FILTER_VALIDATE_BOOLEAN);
-            if (! $isWorking) {
-                continue;
-            }
-
-            // Skip holidays
-            if (in_array($date->toDateString(), $holidayDates)) {
-                continue;
-            }
-
-            $workingDays++;
+            if (! $isWorking || in_array($date->toDateString(), $holidayDates)) continue;
             $requiredMinutes += (int) ($settings["{$dayName}_required_minutes"] ?? 480);
         }
 
-        $presentDays  = $attendances->where('status', 'present')->count();
-        $leaveDays    = count(array_intersect($leaveDates, array_map(
-            fn($a) => $a->attendance_date instanceof Carbon
-                ? $a->attendance_date->toDateString()
-                : Carbon::parse($a->attendance_date)->toDateString(),
-            $attendances->toArray()
-        )));
-        // Safer leave count
-        $leaveDays = $attendances->where('status', 'leave')->count();
-        // Also count leave requests not already in attendance
-        $extraLeaveDays = count(array_diff($leaveDates, $attendances->pluck('attendance_date')->map(
-            fn($d) => Carbon::parse($d)->toDateString()
-        )->toArray()));
-        $leaveDays += $extraLeaveDays;
-
-        $totalWorkMinutes  = $attendances->sum('total_work_minutes');
+        $totalWorkMinutes     = $attendances->sum('total_work_minutes');
         $totalOvertimeMinutes = $attendances->sum('overtime_minutes');
 
-        $absentDays = max(0, $workingDays - $presentDays - $leaveDays);
+        // Leave days = attendance records with leave status + leave request days not in attendance
+        $leaveDaysFromAttendance = $attendances->where('status', 'leave')->count();
+        $attendanceDates = $attendances->pluck('attendance_date')
+            ->map(fn ($d) => Carbon::parse($d)->toDateString())->toArray();
+        $extraLeave = count(array_diff($leaveDates, $attendanceDates));
 
-        // Required minutes vs actual
-        $pendingMinutes = max(0, $requiredMinutes - $totalWorkMinutes);
-
-        $this->presentDays   = $presentDays;
-        $this->absentDays    = $absentDays;
-        $this->leaveDays     = $leaveDays;
-        $this->totalWorkHours = $this->minutesToHoursMinutes($totalWorkMinutes);
-        $this->requiredHours  = $this->minutesToHoursMinutes($requiredMinutes);
-        $this->overtimeHours  = $this->minutesToHoursMinutes($totalOvertimeMinutes);
-        $this->pendingHours   = $this->minutesToHoursMinutes($pendingMinutes);
+        $this->leaveDays     = $leaveDaysFromAttendance + $extraLeave;
+        $this->totalWorkHours= $this->minutesToHM($totalWorkMinutes);
+        $this->overtimeHours = $this->minutesToHM($totalOvertimeMinutes);
+        $this->pendingHours  = $this->minutesToHM(max(0, $requiredMinutes - $totalWorkMinutes));
     }
 
-    private function minutesToHoursMinutes(int $minutes): string
+    private function minutesToHM(int $minutes): string
     {
-        $h = intdiv($minutes, 60);
-        $m = $minutes % 60;
-        return "{$h}h {$m}m";
+        return intdiv($minutes, 60) . 'h ' . ($minutes % 60) . 'm';
     }
 
     public function render()
     {
-        // Security enforcement: only own data
         abort_unless(auth()->user()?->can('attendance.own'), 403);
 
-        $userId = authId();
+        $userId = auth()->id();
         $from   = Carbon::parse($this->dateFrom)->startOfDay();
         $to     = Carbon::parse($this->dateTo)->endOfDay();
 

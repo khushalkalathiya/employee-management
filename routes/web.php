@@ -127,12 +127,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::prefix('attendance')->name('attendance.')->group(function () {
-        Route::get('/', [AttendanceController::class, 'index'])->middleware('permission:attendance.view')->name('index');
+        Route::get('/', [AttendanceController::class, 'index'])->name('index');
         Route::get('/current-status', [AttendanceController::class, 'currentStatus'])->name('current-status');
         Route::post('/check-in', [AttendanceController::class, 'checkIn'])->middleware('permission:attendance.create')->name('check-in');
         Route::post('/break-start', [AttendanceController::class, 'breakStart'])->middleware('permission:attendance.create')->name('break-start');
         Route::post('/break-end', [AttendanceController::class, 'breakEnd'])->middleware('permission:attendance.create')->name('break-end');
         Route::post('/check-out', [AttendanceController::class, 'checkOut'])->middleware('permission:attendance.create')->name('check-out');
+        Route::get('/{attendance}/edit', [AttendanceController::class, 'edit'])->middleware('permission:attendance.edit')->name('edit');
         Route::get('/{attendance}', [AttendanceController::class, 'show'])->middleware('permission:attendance.view')->name('show');
         Route::put('/{attendance}', [AttendanceController::class, 'update'])->middleware('permission:attendance.edit')->name('update');
         Route::delete('/{attendance}', [AttendanceController::class, 'destroy'])->middleware('permission:attendance.delete')->name('destroy');
