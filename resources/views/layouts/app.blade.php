@@ -76,6 +76,16 @@
                     <span class="nav-label">Employees</span>
                 </a>
 
+                <a class="nav-item {{ request()->routeIs('work-logs.*') ? 'active' : '' }}"
+                    href="{{ route('work-logs.index') }}">
+                    <span class="nav-icon">
+                        <svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
+                            <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
+                        </svg>
+                    </span>
+                    <span class="nav-label">Work Logs</span>
+                </a>
+
                 <div class="sb-section-label">Organization</div>
 
                 <a class="nav-item {{ request()->routeIs('departments.*') ? 'active' : '' }}"
@@ -717,6 +727,9 @@
 
     <!-- Attendance Logic JavaScript -->
     <script>
+        window.setActive = function(el) {
+            window.location.href = el.getAttribute('href');
+        };
         document.addEventListener('DOMContentLoaded', () => {
             const timerModal = document.getElementById('timerFormModal');
             const skeleton = document.getElementById('attendanceSkeleton');
@@ -925,14 +938,7 @@
                         updateUIState();
                     }
                 } catch (err) {
-                    console.error('Failed to fetch status:', err);
-                } finally {
-                    skeleton.classList.add('hidden');
-                    content.classList.remove('hidden');
-                }
-            }
-
-            async function handlePostAction(url, button) {
+                    console.error('Failed to            async function handlePostAction(url, button, payload = {}) {
                 const originalHtml = button.innerHTML;
                 button.disabled = true;
                 button.innerHTML = `
@@ -950,10 +956,20 @@
                             'Accept': 'application/json',
                             'X-CSRF-TOKEN': csrfToken,
                             'X-Requested-With': 'XMLHttpRequest'
-                        }
+                        },
+                        body: JSON.stringify(payload)
                     });
 
                     const result = await response.json();
+
+                    if (result.is_late) {
+                        button.disabled = false;
+                        button.innerHTML = originalHtml;
+                        if (window.openLateModal) {
+                            window.openLateModal(url, button);
+                        }
+                        return;
+                    }
 
                     if (result.success) {
                         if (window.showToast) {
@@ -962,6 +978,7 @@
                         // Refresh Livewire table components if they are on page
                         if (typeof Livewire !== 'undefined') {
                             Livewire.dispatch('refresh-table');
+                            Livewire.dispatch('refresh-control-card');
                         }
                         await fetchAttendanceStatus();
                     } else {
@@ -982,7 +999,19 @@
 
             // Event Listeners for actions
             clockInBtn.addEventListener('click', () => handlePostAction(checkInUrl, clockInBtn));
-            clockOutBtn.addEventListener('click', () => handlePostAction(checkOutUrl, clockOutBtn));
+            clockOutBtn.addEventListener('click', () => {
+                closeTimerDrawer();
+                if (window.location.pathname === '/attendance') {
+                    const controlCardOutBtn = document.querySelector('[x-data] button[x-on\\:click="openClockOutModal()"]');
+                    if (controlCardOutBtn) {
+                        controlCardOutBtn.click();
+                    } else {
+                        window.location.href = '/attendance?trigger=clockout';
+                    }
+                } else {
+                    window.location.href = '/attendance?trigger=clockout';
+                }
+            });
             breakToggleBtn.addEventListener('click', () => {
                 const targetUrl = isOnBreak ? breakEndUrl : breakStartUrl;
                 handlePostAction(targetUrl, breakToggleBtn);
@@ -998,9 +1027,167 @@
             // Fetch once on page load to initialize background state
             fetchAttendanceStatus(false);
         });
+
+        // Late Clock In Reason Modal logic
+        let lateReasonTargetUrl = '';
+        let lateReasonTargetBtn = null;
+
+        window.openLateModal = function(url, btn) {
+            lateReasonTargetUrl = url;
+            lateReasonTargetBtn = btn;
+            document.getElementById('lateReasonText').value = '';
+            modalHelper.open('lateReasonModal');
+        };
+
+        window.closeLateModal = function() {
+            modalHelper.close('lateReasonModal');
+        };
+
+        window.submitLateReason = async function(e) {
+            e.preventDefault();
+            const reason = document.getElementById('lateReasonText').value;
+            closeLateModal();
+            
+            if (lateReasonTargetBtn && lateReasonTargetBtn.id === 'clockInBtn') {
+                const originalHtml = lateReasonTargetBtn.innerHTML;
+                lateReasonTargetBtn.disabled = true;
+                lateReasonTargetBtn.innerHTML = `
+                    <svg class="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                `;
+                
+                try {
+                    const response = await fetch(lateReasonTargetUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: JSON.stringify({ late_reason: reason })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        if (window.showToast) {
+                            window.showToast(result.message || 'Updated successfully', 'success');
+                        }
+                        if (typeof Livewire !== 'undefined') {
+                            Livewire.dispatch('refresh-table');
+                            Livewire.dispatch('refresh-control-card');
+                        }
+                        const drawerOpen = !document.getElementById('timerFormModal').classList.contains('hidden');
+                        if (drawerOpen) {
+                            const skeleton = document.getElementById('attendanceSkeleton');
+                            const content = document.getElementById('attendanceContent');
+                            skeleton.classList.remove('hidden');
+                            content.classList.add('hidden');
+                            const statusUrl = content.getAttribute('data-url');
+                            const res = await fetch(statusUrl, {
+                                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                isClockedIn = data.data.is_clocked_in;
+                                isOnBreak = data.data.is_on_break;
+                                workingSeconds = data.data.working_seconds || 0;
+                                breakSeconds = data.data.break_seconds || 0;
+                                const renderLogs = (logs) => {
+                                    const container = document.getElementById('logContainer');
+                                    container.innerHTML = '';
+                                    if (logs && logs.length > 0) {
+                                        logs.forEach(log => {
+                                            const item = document.createElement('div');
+                                            item.className = 'flex items-center gap-3 p-3 bg-gray-50/50 dark:bg-gray-800/20 rounded-xl';
+                                            item.innerHTML = `<span class="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400"><svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg></span><div><p class="text-xs font-bold text-gray-800 dark:text-gray-200">Clock In</p><p class="text-[10px] text-gray-500 dark:text-gray-400">${log.display_time}</p></div>`;
+                                            container.appendChild(item);
+                                        });
+                                    }
+                                };
+                                renderLogs(data.data.logs);
+                                const workingTimerEl = document.getElementById('workingTimer');
+                                const breakTimerEl = document.getElementById('breakTimer');
+                                const drawerStatusText = document.getElementById('drawerStatusText');
+                                const statusIndicatorDot = document.getElementById('statusIndicatorDot');
+                                const statusIndicatorDotInner = document.getElementById('statusIndicatorDotInner');
+                                const clockInBtn = document.getElementById('clockInBtn');
+                                const activeControls = document.getElementById('activeControls');
+                                const breakBtnText = document.getElementById('breakBtnText');
+                                const breakIcon = document.getElementById('breakIcon');
+                                workingTimerEl.textContent = [Math.floor(workingSeconds/3600), Math.floor((workingSeconds%3600)/60), workingSeconds%60].map(v => String(v).padStart(2, '0')).join(':');
+                                breakTimerEl.textContent = [Math.floor(breakSeconds/3600), Math.floor((breakSeconds%3600)/60), breakSeconds%60].map(v => String(v).padStart(2, '0')).join(':');
+                                drawerStatusText.textContent = 'Clocked In';
+                                drawerStatusText.style.color = '#10b981';
+                                statusIndicatorDot.className = 'flex h-2.5 w-2.5 relative';
+                                statusIndicatorDotInner.className = 'animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75';
+                                statusIndicatorDot.querySelector('span:last-child').className = 'relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500';
+                                clockInBtn.classList.add('hidden');
+                                activeControls.classList.remove('hidden');
+                                breakBtnText.textContent = 'Break In';
+                                breakIcon.innerHTML = '<path d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/>';
+                            }
+                        }
+                    } else {
+                        if (window.showToast) {
+                            window.showToast(result.message || 'Operation failed', 'error');
+                        }
+                    }
+                } catch (err) {
+                    if (window.showToast) {
+                        window.showToast('Server error. Please try again.', 'error');
+                    }
+                } finally {
+                    lateReasonTargetBtn.disabled = false;
+                    lateReasonTargetBtn.innerHTML = originalHtml;
+                }
+            } else if (lateReasonTargetBtn) {
+                await window.handleAttendanceAction(lateReasonTargetUrl, lateReasonTargetBtn, { late_reason: reason });
+            }
+        };
     </script>
 
+    <!-- Late Clock In Reason Modal (matches Holiday form styling, responsiveness, dark mode) -->
+    <div id="lateReasonModal" class="modal fixed inset-0 z-[9999] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300" x-cloak>
+        <div class="modal-content relative w-full max-w-md scale-95 overflow-hidden rounded-2xl border border-gray-200 bg-white opacity-0 shadow-2xl transition-all duration-300 dark:border-gray-800 dark:bg-gray-950">
+            <button onclick="closeLateModal()" class="modal-close-btn close-icon absolute right-4 top-4 cursor-pointer text-gray-400 transition hover:text-gray-700 dark:hover:text-white" type="button">
+                <svg class="h-5 w-5" fill="none" stroke-width="2" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </button>
 
+            <div class="p-6">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2 mb-2">
+                    <svg class="h-6 w-6 text-amber-500 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Late Clock In Reason
+                </h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">
+                    You are clocking in late today. Please explain why you are late.
+                </p>
+            </div>
+
+            <form id="lateReasonForm" onsubmit="submitLateReason(event)">
+                <div class="p-6 pt-0">
+                    <div class="mb-4">
+                        <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wider mb-2">Why are you late? <span class="text-rose-500">*</span></label>
+                        <textarea id="lateReasonText" required class="w-full rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-950 text-sm text-gray-900 dark:text-white p-3 outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500" placeholder="Please provide your reason..."></textarea>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-3 bg-gray-50 p-4 dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800/60">
+                    <button onclick="closeLateModal()" class="btn-ghost" type="button">
+                        Cancel
+                    </button>
+                    <button class="btn-primary bg-amber-500 hover:bg-amber-600 border-amber-500 text-white" type="submit">
+                        Confirm & Clock In
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     @livewireScriptConfig
 </body>

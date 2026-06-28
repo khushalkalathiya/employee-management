@@ -27,6 +27,8 @@ return new class extends Migration
             $table->foreignId('reporting_manager_id')->nullable()->constrained('users')->nullOnDelete();
             $table->string('status')->default('active')->comment('active, probation, notice, resigned, terminated');
             $table->decimal('current_salary', 12, 4)->default(0);
+            $table->boolean('is_hourly')->default(false);
+            $table->boolean('auto_break_enabled')->default(false);
             $table->text('address')->nullable();
             $table->string('city')->nullable();
             $table->string('state')->nullable();

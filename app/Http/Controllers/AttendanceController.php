@@ -93,6 +93,29 @@ class AttendanceController extends Controller
     public function currentStatus(): JsonResponse
     {
         try {
+            $dayName = strtolower(now()->format('l'));
+            $workingSetting = \App\Models\Setting::where('key', "{$dayName}_working")->value('value');
+            $breakSetting = \App\Models\Setting::where('key', "{$dayName}_break_enabled")->value('value');
+            $breakInTimeStr = \App\Models\Setting::where('key', "{$dayName}_break_start")->value('value');
+            $breakOutTimeStr = \App\Models\Setting::where('key', "{$dayName}_break_end")->value('value');
+            $breakNotificationSecs = \App\Models\Setting::where('key', 'break_notification_before_seconds')->value('value') ?? 60;
+
+            $user = auth_user();
+            $autoBreakEnabled = (bool)($user?->employee?->auto_break_enabled ?? false);
+
+            $breakInTime = '';
+            if ($breakInTimeStr) {
+                try {
+                    $breakInTime = \Carbon\Carbon::parse(today()->toDateString() . ' ' . $breakInTimeStr)->format('H:i:s');
+                } catch (\Throwable $e) {}
+            }
+            $breakOutTime = '';
+            if ($breakOutTimeStr) {
+                try {
+                    $breakOutTime = \Carbon\Carbon::parse(today()->toDateString() . ' ' . $breakOutTimeStr)->format('H:i:s');
+                } catch (\Throwable $e) {}
+            }
+
             $activeAttendance = Attendance::query()
                 ->with('logs')
                 ->where('user_id', authId())
@@ -133,6 +156,12 @@ class AttendanceController extends Controller
                         'working_seconds'=> 0,
                         'break_seconds'  => 0,
                         'logs'           => $mappedLogs,
+                        'today_working'  => filter_var($workingSetting, FILTER_VALIDATE_BOOLEAN),
+                        'today_break_enabled' => filter_var($breakSetting, FILTER_VALIDATE_BOOLEAN),
+                        'today_break_start'   => $breakInTime,
+                        'today_break_end'     => $breakOutTime,
+                        'break_notification_before_seconds' => (int)$breakNotificationSecs,
+                        'auto_break_enabled'  => $autoBreakEnabled,
                     ],
                 ]);
             }
@@ -179,6 +208,12 @@ class AttendanceController extends Controller
                     'break_seconds'    => $breakSeconds,
                     'current_break_start' => $currentBreakStart,
                     'logs'             => $mappedLogs,
+                    'today_working'    => filter_var($workingSetting, FILTER_VALIDATE_BOOLEAN),
+                    'today_break_enabled' => filter_var($breakSetting, FILTER_VALIDATE_BOOLEAN),
+                    'today_break_start'   => $breakInTime,
+                    'today_break_end'     => $breakOutTime,
+                    'break_notification_before_seconds' => (int)$breakNotificationSecs,
+                    'auto_break_enabled'  => $autoBreakEnabled,
                 ],
             ]);
         } catch (\Throwable $e) {
@@ -191,10 +226,31 @@ class AttendanceController extends Controller
         }
     }
 
-    public function checkIn(ClockInAttendanceAction $action): JsonResponse
+    public function checkIn(Request $request, ClockInAttendanceAction $action): JsonResponse
     {
         try {
-            $action->handle(auth_user());
+            $dayName = strtolower(now()->format('l'));
+            $startTimeStr = \App\Models\Setting::where('key', "{$dayName}_start_time")->value('value');
+            $lateAllowance = (int)(\App\Models\Setting::where('key', 'late_allowance_minutes')->value('value') ?? 0);
+            
+            $isLate = false;
+            if ($startTimeStr) {
+                $scheduledStart = \Carbon\Carbon::parse(today()->toDateString() . ' ' . $startTimeStr);
+                $lateLimit = $scheduledStart->copy()->addMinutes($lateAllowance);
+                if (now()->gt($lateLimit)) {
+                    $isLate = true;
+                }
+            }
+
+            if ($isLate && !$request->input('late_reason')) {
+                return response()->json([
+                    'success' => false,
+                    'is_late' => true,
+                    'message' => 'You are late today. Please explain why.',
+                ]);
+            }
+
+            $action->handle(auth_user(), $request->input('late_reason'));
 
             return response()->json([
                 'success' => true,
@@ -208,15 +264,49 @@ class AttendanceController extends Controller
         }
     }
 
-    public function checkOut(CheckoutAttendanceAction $action): JsonResponse
+    public function checkOut(Request $request, CheckoutAttendanceAction $action): JsonResponse
     {
         try {
-            $action->handle(auth_user());
+            $dayName = strtolower(now()->format('l'));
+            $endTimeStr = \App\Models\Setting::where('key', "{$dayName}_end_time")->value('value');
+            $isEarly = false;
+            
+            if ($endTimeStr) {
+                $endTime = \Carbon\Carbon::parse(today()->toDateString() . ' ' . $endTimeStr);
+                if (now()->lt($endTime)) {
+                    $isEarly = true;
+                }
+            }
+
+            if ($isEarly) {
+                $validated = $request->validate([
+                    'notes' => 'required|string|max:1000',
+                ], [
+                    'notes.required' => 'Please explain why you are leaving early.',
+                ]);
+            } else {
+                $validated = $request->validate([
+                    'project_title' => 'required|string|max:255',
+                    'description' => 'required|string',
+                    'work_images' => 'nullable|array',
+                    'work_images.*' => 'image|max:5120',
+                ], [
+                    'project_title.required' => 'Project Title is required.',
+                    'description.required' => 'Work description is required.',
+                ]);
+            }
+
+            $action->handle(auth_user(), $validated);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Clock out successfully.',
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->validator->errors()->first(),
+            ], 422);
         } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
@@ -256,6 +346,40 @@ class AttendanceController extends Controller
                 'success' => false,
                 'message' => $e->getMessage(),
             ], 500);
+        }
+    }
+
+    public function autoBreakIn(\App\Services\AttendanceService $service): JsonResponse
+    {
+        try {
+            $service->autoBreakIn(auth_user());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Automatic Break In completed successfully.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    public function autoBreakOut(\App\Services\AttendanceService $service): JsonResponse
+    {
+        try {
+            $service->autoBreakOut(auth_user());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Automatic Break Out completed successfully.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
         }
     }
 }

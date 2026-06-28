@@ -15,6 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('employee_id')->constrained()->cascadeOnDelete();
             $table->date('salary_month');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->boolean('is_hourly')->default(false);
+            $table->decimal('total_hours', 8, 2)->default(0);
+            $table->decimal('hourly_rate', 12, 4)->default(0);
             $table->integer('working_days');
             $table->decimal('present_days', 5, 2);
             $table->decimal('leave_days', 5, 2);
@@ -25,6 +30,9 @@ return new class extends Migration
             $table->decimal('hold_amount', 12, 4)->default(0);
             $table->decimal('final_salary', 12, 4);
             $table->text('notes')->nullable();
+            $table->string('status')->default('pending');
+            $table->foreignId('processed_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('paid_at')->nullable();
             $table->timestamps();
         });
     }

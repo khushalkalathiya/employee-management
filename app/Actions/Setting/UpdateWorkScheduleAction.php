@@ -15,11 +15,17 @@ class UpdateWorkScheduleAction
     public function handle(array $data): void
     {
         DB::transaction(function () use ($data) {
+            $arrayKeys = [
+                'late_allowance_minutes',
+                'break_notification_before_seconds',
+            ];
 
-            Setting::updateOrCreate(
-                ['key' => 'late_allowance_minutes'],
-                ['value' => $data['late_allowance_minutes']]
-            );
+            foreach ($arrayKeys as $key) {
+                Setting::updateOrCreate(
+                    ['key' => $key],
+                    ['value' => $data[$key] ?? null]
+                );
+            }
 
             $days = [
                 'monday',
