@@ -12,7 +12,7 @@ class ClockInAttendanceAction
 {
     use AsAction;
 
-    public function handle(User $user): Attendance
+    public function handle(User $user, ?string $lateReason = null): Attendance
     {
         $openAttendance = Attendance::query()
             ->where('user_id', $user->id)
@@ -27,16 +27,17 @@ class ClockInAttendanceAction
         }
 
         $attendance = Attendance::create([
-            'user_id' => $user->id,
+            'user_id'         => $user->id,
             'attendance_date' => today(),
-            'check_in' => now(),
-            'status' => 'present',
+            'check_in'        => now(),
+            'status'          => 'present',
+            'notes'           => $lateReason ? 'Late reason: ' . $lateReason : null,
         ]);
 
         AttendanceLog::create([
             'attendance_id' => $attendance->id,
-            'action_type' => 'clock_in',
-            'action_time' => now(),
+            'action_type'   => 'clock_in',
+            'action_time'   => now(),
         ]);
 
         return $attendance;

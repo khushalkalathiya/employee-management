@@ -3,6 +3,7 @@
 namespace App\Livewire\Attendance;
 
 use App\Models\Attendance;
+use App\Models\Setting;
 use Carbon\Carbon;
 use Livewire\Attributes\On;
 use Livewire\Component;
@@ -18,9 +19,42 @@ class AttendanceControlCard extends Component
     public array $todayLogs = [];
     public ?int $attendanceId = null;
 
+    // Schedule data passed to blade for client-side clock-in window logic
+    public array $scheduleConfig = [];
+
     public function mount(): void
     {
         $this->loadStatus();
+        $this->loadScheduleConfig();
+    }
+
+    /**
+     * Load today's schedule rules into a JS-friendly structure.
+     * This is passed to Alpine.js to drive enable/disable of the Clock In button
+     * and late-reason enforcement — all without extra AJAX calls.
+     */
+    public function loadScheduleConfig(): void
+    {
+        $today = strtolower(now()->format('l')); // e.g. "monday"
+
+        $keys = [
+            'late_allowance_minutes',
+            'early_clock_in_minutes',
+            "{$today}_working",
+            "{$today}_start_time",
+            "{$today}_end_time",
+        ];
+
+        $raw = Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
+
+        $this->scheduleConfig = [
+            'today'                       => $today,
+            'is_working_day'              => (bool) ($raw["{$today}_working"] ?? false),
+            'start_time'                  => $raw["{$today}_start_time"] ?? null,   // "g:i A" format, e.g. "9:00 AM"
+            'end_time'                    => $raw["{$today}_end_time"] ?? null,
+            'late_allowance_minutes'      => (int) ($raw['late_allowance_minutes'] ?? 10),
+            'early_clock_in_minutes'      => (int) ($raw['early_clock_in_minutes'] ?? 15),
+        ];
     }
 
     #[On('refresh-control-card')]

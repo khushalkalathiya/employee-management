@@ -21,6 +21,16 @@ class UpdateWorkScheduleAction
                 ['value' => $data['late_allowance_minutes']]
             );
 
+            Setting::updateOrCreate(
+                ['key' => 'early_clock_in_minutes'],
+                ['value' => $data['early_clock_in_minutes']]
+            );
+
+            Setting::updateOrCreate(
+                ['key' => 'break_notification_before_seconds'],
+                ['value' => $data['break_notification_before_seconds']]
+            );
+
             $days = [
                 'monday',
                 'tuesday',

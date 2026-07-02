@@ -509,10 +509,11 @@
     </div>
 
     <!-- ═══════════════ ATTENDANCE TIMER MODAL (DRAWER) ═══════════════ -->
-    <div class="timer-modal fixed inset-0 z-[9998] hidden bg-black/40 backdrop-blur-sm transition-all duration-300"
-        id="timerFormModal">
-        <div
-            class="timer-drawer absolute right-0 top-0 flex h-full w-full max-w-md translate-x-full flex-col overflow-y-auto border-l border-gray-200 bg-white shadow-2xl transition-transform duration-300 dark:border-gray-800 dark:bg-gray-950">
+    <div class="timer-modal fixed inset-0 z-[9998] hidden bg-black/40 backdrop-blur-sm" id="timerFormModal"
+        style="transition:opacity 0.25s ease;">
+        <div class="timer-drawer absolute right-0 top-0 flex h-full w-full max-w-md flex-col overflow-y-auto border-l border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-950"
+            id="timerDrawerPanel"
+            style="transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);transform:translateX(100%);">
 
             <!-- Close button -->
             <div class="absolute right-4 top-4 z-10">
@@ -639,9 +640,13 @@
                     <!-- Dynamic Action Buttons Section -->
                     <div class="space-y-3">
 
+                        <!-- Clock-in availability hint -->
+                        <div class="hidden rounded-xl px-4 py-2.5 text-center text-xs font-medium" id="clockInHint">
+                        </div>
+
                         <!-- State 1: Clock In Button -->
                         <button
-                            class="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-4 font-semibold text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98]"
+                            class="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-4 font-semibold text-white shadow-lg shadow-blue-500/20 transition-all duration-200 hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100"
                             id="clockInBtn">
                             <svg class="h-5 w-5" fill="none" stroke-width="2.5" stroke="currentColor"
                                 viewBox="0 0 24 24">
@@ -715,25 +720,115 @@
         </div>
     </div>
 
+    <!-- ═══════════════ LATE REASON MODAL ═══════════════ -->
+    {{-- Opens on top of the drawer when an employee clicks Clock In while late --}}
+    <div class="fixed inset-0 z-[9999] hidden bg-black/60 p-4 backdrop-blur-sm" id="lateReasonModal"
+        style="display:none;align-items:center;justify-content:center;">
+        <div class="w-full max-w-md rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-950"
+            id="lateReasonModalBox">
+
+            <!-- Header -->
+            <div class="flex items-start justify-between gap-3 border-b border-gray-100 p-6 pb-4 dark:border-gray-800">
+                <div>
+                    <div class="mb-1 flex items-center gap-2">
+                        <span
+                            class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+                            <svg class="h-4 w-4" fill="none" stroke-width="2.5" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                    d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                        <h3 class="text-base font-bold text-gray-900 dark:text-white">You're Running Late</h3>
+                    </div>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                        Your shift started at <strong class="text-gray-700 dark:text-gray-300"
+                            id="lateModalStartTime">—</strong>.
+                        Please provide a reason before clocking in.
+                    </p>
+                </div>
+                <button
+                    class="mt-0.5 flex-shrink-0 rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                    onclick="closeLateReasonModal()" type="button">
+                    <svg class="h-4 w-4" fill="none" stroke-width="2.5" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Body -->
+            <div class="p-6">
+                <label class="mb-1.5 block text-sm font-semibold text-gray-700 dark:text-gray-300"
+                    for="lateReasonText">
+                    Why are you late? <span class="text-red-500">*</span>
+                </label>
+                <textarea
+                    class="w-full resize-none rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-800 placeholder-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:placeholder-gray-500 dark:focus:border-blue-400"
+                    id="lateReasonText" maxlength="1000" oninput="onLateReasonInput()" placeholder="Minimum 5 characters required…"
+                    rows="4"></textarea>
+                <div class="mt-1.5 flex items-center justify-between text-xs">
+                    <span class="hidden font-medium text-red-500" id="lateReasonError">Please enter at least 5
+                        characters.</span>
+                    <span class="text-gray-400" id="lateReasonCharCount">0 / 1000</span>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="flex items-center justify-end gap-3 border-t border-gray-100 px-6 py-4 dark:border-gray-800">
+                <button
+                    class="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 dark:hover:bg-gray-800"
+                    onclick="closeLateReasonModal()" type="button">
+                    Cancel
+                </button>
+                <button
+                    class="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition hover:from-blue-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-blue-500/40 disabled:cursor-not-allowed disabled:opacity-50"
+                    disabled id="lateReasonSubmitBtn" onclick="submitLateClockIn()" type="button">
+                    <svg class="hidden h-4 w-4 animate-spin" fill="none" id="lateReasonSpinner"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke-width="4"
+                            stroke="currentColor"></circle>
+                        <path class="opacity-75" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" fill="currentColor">
+                        </path>
+                    </svg>
+                    Clock In
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Attendance Logic JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // ── Element refs ───────────────────────────────────────────────
             const timerModal = document.getElementById('timerFormModal');
+            const timerDrawerPanel = document.getElementById('timerDrawerPanel');
             const skeleton = document.getElementById('attendanceSkeleton');
             const content = document.getElementById('attendanceContent');
             const workingTimerEl = document.getElementById('workingTimer');
             const breakTimerEl = document.getElementById('breakTimer');
             const drawerStatusText = document.getElementById('drawerStatusText');
-            const statusIndicatorDot = document.getElementById('statusIndicatorDot');
-            const statusIndicatorDotInner = document.getElementById('statusIndicatorDotInner');
-
+            const statusDot = document.getElementById('statusIndicatorDot');
+            const statusDotInner = document.getElementById('statusIndicatorDotInner');
             const clockInBtn = document.getElementById('clockInBtn');
+            const clockInHint = document.getElementById('clockInHint');
             const activeControls = document.getElementById('activeControls');
             const clockOutBtn = document.getElementById('clockOutBtn');
             const breakToggleBtn = document.getElementById('breakToggleBtn');
             const breakBtnText = document.getElementById('breakBtnText');
             const breakIcon = document.getElementById('breakIcon');
 
+            // ── Late-reason modal refs ─────────────────────────────────────
+            const lateModal = document.getElementById('lateReasonModal');
+            const lateModalStartEl = document.getElementById('lateModalStartTime');
+            const lateReasonText = document.getElementById('lateReasonText');
+            const lateReasonError = document.getElementById('lateReasonError');
+            const lateCharCount = document.getElementById('lateReasonCharCount');
+            const lateSubmitBtn = document.getElementById('lateReasonSubmitBtn');
+            const lateSpinner = document.getElementById('lateReasonSpinner');
+
+            // ── URLs & token ───────────────────────────────────────────────
             const statusUrl = content.getAttribute('data-url');
             const checkInUrl = "{{ route('attendance.check-in') }}";
             const checkOutUrl = "{{ route('attendance.check-out') }}";
@@ -741,11 +836,13 @@
             const breakEndUrl = "{{ route('attendance.break-end') }}";
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
 
+            // ── State ──────────────────────────────────────────────────────
             let workingSeconds = 0;
             let breakSeconds = 0;
             let isClockedIn = false;
             let isOnBreak = false;
             let timerInterval = null;
+            let scheduleConfig = null; // populated from AJAX response
 
             const logMeta = {
                 clock_in: {

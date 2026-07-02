@@ -93,6 +93,39 @@ class AttendanceController extends Controller
     public function currentStatus(): JsonResponse
     {
         try {
+            // ── Load today's schedule config ────────────────────────────────
+            $today = strtolower(now()->format('l')); // e.g. "monday"
+
+            $scheduleKeys = [
+                'late_allowance_minutes',
+                'early_clock_in_minutes',
+                'break_notification_before_seconds',
+                "{$today}_working",
+                "{$today}_start_time",
+                "{$today}_end_time",
+                "{$today}_break_enabled",
+                "{$today}_break_start",
+                "{$today}_break_end",
+            ];
+
+            $raw = \App\Models\Setting::whereIn('key', $scheduleKeys)
+                ->pluck('value', 'key')
+                ->toArray();
+
+            $schedule = [
+                'today'                              => $today,
+                'is_working_day'                     => (bool)  ($raw["{$today}_working"]      ?? false),
+                'start_time'                         =>          $raw["{$today}_start_time"]    ?? null,
+                'end_time'                           =>          $raw["{$today}_end_time"]      ?? null,
+                'break_enabled'                      => (bool)  ($raw["{$today}_break_enabled"] ?? false),
+                'break_start'                        =>          $raw["{$today}_break_start"]   ?? null,
+                'break_end'                          =>          $raw["{$today}_break_end"]     ?? null,
+                'late_allowance_minutes'             => (int)   ($raw['late_allowance_minutes']            ?? 10),
+                'early_clock_in_minutes'             => (int)   ($raw['early_clock_in_minutes']            ?? 15),
+                'break_notification_before_seconds'  => (int)   ($raw['break_notification_before_seconds'] ?? 60),
+            ];
+            // ───────────────────────────────────────────────────────────────
+
             $activeAttendance = Attendance::query()
                 ->with('logs')
                 ->where('user_id', authId())
@@ -128,11 +161,12 @@ class AttendanceController extends Controller
                 return response()->json([
                     'success' => true,
                     'data'    => [
-                        'is_clocked_in'  => false,
-                        'is_on_break'    => false,
-                        'working_seconds'=> 0,
-                        'break_seconds'  => 0,
-                        'logs'           => $mappedLogs,
+                        'is_clocked_in'   => false,
+                        'is_on_break'     => false,
+                        'working_seconds' => 0,
+                        'break_seconds'   => 0,
+                        'logs'            => $mappedLogs,
+                        'schedule'        => $schedule,
                     ],
                 ]);
             }
@@ -167,18 +201,19 @@ class AttendanceController extends Controller
             return response()->json([
                 'success' => true,
                 'data'    => [
-                    'attendance_id'    => $activeAttendance->id,
-                    'attendance_date'  => $activeAttendance->attendance_date,
-                    'check_in'         => $activeAttendance->check_in,
-                    'check_out'        => $activeAttendance->check_out,
-                    'clock_in_date'    => \Carbon\Carbon::parse($activeAttendance->check_in)->format('Y-m-d'),
-                    'clock_in_time'    => \Carbon\Carbon::parse($activeAttendance->check_in)->format('h:i:s A'),
-                    'is_clocked_in'    => true,
-                    'is_on_break'      => $isOnBreak,
-                    'working_seconds'  => max(0, $workingSeconds),
-                    'break_seconds'    => $breakSeconds,
+                    'attendance_id'       => $activeAttendance->id,
+                    'attendance_date'     => $activeAttendance->attendance_date,
+                    'check_in'            => $activeAttendance->check_in,
+                    'check_out'           => $activeAttendance->check_out,
+                    'clock_in_date'       => \Carbon\Carbon::parse($activeAttendance->check_in)->format('Y-m-d'),
+                    'clock_in_time'       => \Carbon\Carbon::parse($activeAttendance->check_in)->format('h:i:s A'),
+                    'is_clocked_in'       => true,
+                    'is_on_break'         => $isOnBreak,
+                    'working_seconds'     => max(0, $workingSeconds),
+                    'break_seconds'       => $breakSeconds,
                     'current_break_start' => $currentBreakStart,
-                    'logs'             => $mappedLogs,
+                    'logs'                => $mappedLogs,
+                    'schedule'            => $schedule,
                 ],
             ]);
         } catch (\Throwable $e) {
@@ -191,10 +226,14 @@ class AttendanceController extends Controller
         }
     }
 
-    public function checkIn(ClockInAttendanceAction $action): JsonResponse
+    public function checkIn(Request $request, ClockInAttendanceAction $action): JsonResponse
     {
         try {
-            $action->handle(auth_user());
+            $validated = $request->validate([
+                'late_reason' => ['nullable', 'string', 'min:5', 'max:1000'],
+            ]);
+
+            $action->handle(auth_user(), $validated['late_reason'] ?? null);
 
             return response()->json([
                 'success' => true,

@@ -20,7 +20,9 @@ class SettingController extends Controller
     public function workSchedule()
     {
         $keys = [
-            'late_allowance_minutes'
+            'late_allowance_minutes',
+            'early_clock_in_minutes',
+            'break_notification_before_seconds',
         ];
         foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
             $keys[] = "{$day}_working";

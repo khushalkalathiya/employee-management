@@ -15,7 +15,9 @@ class WorkScheduleRequest extends FormRequest
     {
         // dd(request()->all());
         $rules = [
-            'late_allowance_minutes' => ['required', 'integer', 'min:0'],
+            'late_allowance_minutes'             => ['required', 'integer', 'min:0'],
+            'early_clock_in_minutes'             => ['required', 'integer', 'min:0'],
+            'break_notification_before_seconds'  => ['required', 'integer', 'min:0'],
         ];
 
         $days = [
@@ -127,7 +129,9 @@ class WorkScheduleRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'late_allowance_minutes' => 'late allowance minutes',
+            'late_allowance_minutes'            => 'late allowance minutes',
+            'early_clock_in_minutes'            => 'early clock in minutes',
+            'break_notification_before_seconds' => 'break notification before seconds',
         ];
     }
 

@@ -62,6 +62,48 @@
                                     @enderror
                                 </div>
                             </div>
+
+                            <div>
+                                <label class="field-label">
+                                    Early Clock In Min
+                                    <span class="text-red-400">*</span>
+                                </label>
+                                <div class="field-wrap relative">
+                                    <input class="field-input" min="0" name="early_clock_in_minutes"
+                                        type="number"
+                                        value="{{ old('early_clock_in_minutes') ?? ($settings['early_clock_in_minutes'] ?? 15) }}">
+                                    <span class="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                                        Min
+                                    </span>
+                                    @error('early_clock_in_minutes')
+                                        <p class="err-msg">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                                    How many minutes before shift start an employee can clock in.
+                                </p>
+                            </div>
+
+                            <div>
+                                <label class="field-label">
+                                    Break Notification Before (sec)
+                                    <span class="text-red-400">*</span>
+                                </label>
+                                <div class="field-wrap relative">
+                                    <input class="field-input" min="0" name="break_notification_before_seconds"
+                                        type="number"
+                                        value="{{ old('break_notification_before_seconds') ?? ($settings['break_notification_before_seconds'] ?? 60) }}">
+                                    <span class="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                                        Sec
+                                    </span>
+                                    @error('break_notification_before_seconds')
+                                        <p class="err-msg">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                                    Seconds before break start time to trigger the countdown notification.
+                                </p>
+                            </div>
                         </div>
                     </div>
 
