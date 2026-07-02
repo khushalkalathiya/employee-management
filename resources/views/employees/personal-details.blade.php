@@ -265,6 +265,16 @@
                 @enderror
             </div>
         </div>
+        <hr class="my-6 border-gray-200 dark:border-gray-800" />
+
+        <div class="mb-5 flex items-center">
+            <label class="relative inline-flex items-center cursor-pointer">
+                <input type="hidden" name="auto_break_enabled" value="0">
+                <input type="checkbox" name="auto_break_enabled" value="1" @checked(old('auto_break_enabled', $employeeDetails->auto_break_enabled ?? false)) class="sr-only peer">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                <span class="ml-3 text-sm font-medium text-gray-900 dark:text-white select-none">Enable Automatic Break (In/Out at configured times)</span>
+            </label>
+        </div>
     </div>
 
     <div class="mt-5 flex items-center justify-end gap-3">

@@ -18,6 +18,16 @@ class AttendanceControlCard extends Component
     public array $todayLogs = [];
     public ?int $attendanceId = null;
 
+    // Auto Break Settings
+    public bool $breakEnabled = false;
+    public string $breakInTime = '';
+    public string $breakOutTime = '';
+    public int $breakNotificationBeforeSeconds = 60;
+    public bool $autoBreakEnabled = false;
+    public bool $isShiftCompleted = false;
+    public bool $hasTodayBreakIn = false;
+    public bool $hasTodayBreakOut = false;
+
     public function mount(): void
     {
         $this->loadStatus();
@@ -27,6 +37,39 @@ class AttendanceControlCard extends Component
     public function loadStatus(): void
     {
         $userId = authId();
+
+        $dayName = strtolower(now()->format('l'));
+        $workingSetting = \App\Models\Setting::where('key', "{$dayName}_working")->value('value');
+        $breakSetting = \App\Models\Setting::where('key', "{$dayName}_break_enabled")->value('value');
+        $breakInTimeStr = \App\Models\Setting::where('key', "{$dayName}_break_start")->value('value');
+        $breakOutTimeStr = \App\Models\Setting::where('key', "{$dayName}_break_end")->value('value');
+        $breakNotificationSecs = \App\Models\Setting::where('key', 'break_notification_before_seconds')->value('value') ?? 60;
+
+        $user = auth()->user();
+        $this->autoBreakEnabled = (bool)($user?->employee?->auto_break_enabled ?? false);
+        $this->breakEnabled = filter_var($breakSetting, FILTER_VALIDATE_BOOLEAN) && filter_var($workingSetting, FILTER_VALIDATE_BOOLEAN);
+        $this->breakNotificationBeforeSeconds = (int)$breakNotificationSecs;
+
+        $this->breakInTime = '';
+        if ($breakInTimeStr) {
+            try {
+                $this->breakInTime = \Carbon\Carbon::parse(today()->toDateString() . ' ' . $breakInTimeStr)->format('H:i:s');
+            } catch (\Throwable $e) {}
+        }
+        $this->breakOutTime = '';
+        if ($breakOutTimeStr) {
+            try {
+                $this->breakOutTime = \Carbon\Carbon::parse(today()->toDateString() . ' ' . $breakOutTimeStr)->format('H:i:s');
+            } catch (\Throwable $e) {}
+        }
+
+        $endTimeStr = \App\Models\Setting::where('key', "{$dayName}_end_time")->value('value');
+        if ($endTimeStr) {
+            $endTime = \Carbon\Carbon::parse(today()->toDateString() . ' ' . $endTimeStr);
+            $this->isShiftCompleted = now()->gte($endTime);
+        } else {
+            $this->isShiftCompleted = true;
+        }
 
         $activeAttendance = Attendance::query()
             ->with('logs')
@@ -46,6 +89,17 @@ class AttendanceControlCard extends Component
         $allLogs = collect();
         foreach ($todayAttendances as $att) {
             $allLogs = $allLogs->merge($att->logs);
+        }
+
+        $this->hasTodayBreakIn = false;
+        $this->hasTodayBreakOut = false;
+        foreach ($allLogs as $log) {
+            if ($log->action_type === 'break_start') {
+                $this->hasTodayBreakIn = true;
+            }
+            if ($log->action_type === 'break_end') {
+                $this->hasTodayBreakOut = true;
+            }
         }
 
         $sortedLogs = $allLogs->sortBy(fn($log) => $log->action_time . '_' . $log->id)->values();

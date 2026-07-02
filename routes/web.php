@@ -8,6 +8,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DesignationController;
 use App\Http\Controllers\LeaveTypeController;
 use App\Http\Controllers\HolidayController;
+use App\Http\Controllers\WorkLogController;
 use App\Http\Controllers\LeaveRequestController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\PayrollController;
@@ -133,6 +134,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::post('/break-start', [AttendanceController::class, 'breakStart'])->middleware('permission:attendance.create')->name('break-start');
         Route::post('/break-end', [AttendanceController::class, 'breakEnd'])->middleware('permission:attendance.create')->name('break-end');
         Route::post('/check-out', [AttendanceController::class, 'checkOut'])->middleware('permission:attendance.create')->name('check-out');
+        Route::post('/auto-break-in', [AttendanceController::class, 'autoBreakIn'])->middleware('permission:attendance.create')->name('auto-break-in');
+        Route::post('/auto-break-out', [AttendanceController::class, 'autoBreakOut'])->middleware('permission:attendance.create')->name('auto-break-out');
         Route::get('/{attendance}/edit', [AttendanceController::class, 'edit'])->middleware('permission:attendance.edit')->name('edit');
         Route::get('/{attendance}', [AttendanceController::class, 'show'])->middleware('permission:attendance.view')->name('show');
         Route::put('/{attendance}', [AttendanceController::class, 'update'])->middleware('permission:attendance.edit')->name('update');
@@ -141,6 +144,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // ─── Chat ─────────────────────────────────────────────────────────────────
     Route::get('/chat', ChatDashboard::class)->name('chat.index');
+
+    // ─── Work Logs ────────────────────────────────────────────────────────────
+    Route::get('/work-logs', [WorkLogController::class, 'index'])->name('work-logs.index');
+    Route::post('/work-logs', [WorkLogController::class, 'store'])->name('work-logs.store');
+    Route::put('/work-logs/{work_log}', [WorkLogController::class, 'update'])->name('work-logs.update');
+    Route::delete('/work-logs/{work_log}', [WorkLogController::class, 'destroy'])->name('work-logs.destroy');
+    Route::delete('/work-logs/media/{media}', [WorkLogController::class, 'removeMedia'])->name('work-logs.media.destroy');
 
     // ─── Payroll ──────────────────────────────────────────────────────────────
     Route::prefix('payroll')->name('payroll.')->group(function () {

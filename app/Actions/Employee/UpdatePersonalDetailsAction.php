@@ -31,6 +31,7 @@ class UpdatePersonalDetailsAction
                 'state' => $data['state'] ?? $employee->state,
                 'country' => $data['country'] ?? $employee->country,
                 'postal_code' => $data['postal_code'] ?? $employee->postal_code,
+                'auto_break_enabled' => filter_var($data['auto_break_enabled'] ?? false, FILTER_VALIDATE_BOOLEAN),
             ];
 
             if(authId() != $user->id){

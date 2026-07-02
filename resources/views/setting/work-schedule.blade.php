@@ -62,6 +62,23 @@
                                     @enderror
                                 </div>
                             </div>
+
+                            <div>
+                                <label class="field-label">
+                                    Notification Before Break
+                                    <span class="text-red-400">*</span>
+                                </label>
+                                <div class="field-wrap relative">
+                                    <input class="field-input" name="break_notification_before_seconds" type="number"
+                                        value="{{ old('break_notification_before_seconds') ?? ($settings['break_notification_before_seconds'] ?? 60) }}">
+                                    <span class="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                                        Sec
+                                    </span>
+                                    @error('break_notification_before_seconds')
+                                        <p class="err-msg">{{ $message }}</p>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
                     </div>
 
