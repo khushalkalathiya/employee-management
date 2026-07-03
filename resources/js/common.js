@@ -538,22 +538,22 @@ window.modalHelper = {
 
 window.openTimerDrawer = function () {
     const modal = document.getElementById('timerFormModal');
-    const drawer = modal.querySelector('.timer-drawer');
+    const drawer = document.getElementById('timerDrawerPanel');
 
     modal.classList.remove('hidden');
 
     requestAnimationFrame(() => {
-        drawer.classList.remove('translate-x-full');
-        drawer.classList.add('translate-x-0');
+        requestAnimationFrame(() => {
+            drawer.style.transform = 'translateX(0)';
+        });
     });
 };
 
 window.closeTimerDrawer = function () {
     const modal = document.getElementById('timerFormModal');
-    const drawer = modal.querySelector('.timer-drawer');
+    const drawer = document.getElementById('timerDrawerPanel');
 
-    drawer.classList.remove('translate-x-0');
-    drawer.classList.add('translate-x-full');
+    drawer.style.transform = 'translateX(100%)';
 
     setTimeout(() => {
         modal.classList.add('hidden');

@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Actions\Setting\UpdateGeneralSettingAction;
 use App\Actions\Setting\UpdateWorkScheduleAction;
+use App\Http\Requests\Setting\GeneralSettingRequest;
 use App\Http\Requests\Setting\WorkScheduleRequest;
 use App\Models\Setting;
-use Illuminate\Http\Request;
+
 
 class SettingController extends Controller
 {
@@ -14,9 +16,30 @@ class SettingController extends Controller
      */
     public function general()
     {
-        return view('setting.general');
+        $settings = Setting::whereIn('key', ['app_name', 'app_email', 'app_logo', 'app_favicon'])
+            ->pluck('value', 'key')
+            ->toArray();
+
+        return view('setting.general', compact('settings'));
     }
-    
+
+    /**
+     * Persist general settings.
+     */
+    public function updateGeneral(GeneralSettingRequest $request, UpdateGeneralSettingAction $action)
+    {
+        try {
+            $action->handle($request->validated());
+
+            return redirect()
+                ->route('settings.general.index')
+                ->with('success', 'General settings updated successfully.');
+        } catch (\Throwable $e) {
+            return back()->withInput()->with('error', $e->getMessage());
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
     public function workSchedule()
     {
         $keys = [
@@ -24,7 +47,8 @@ class SettingController extends Controller
             'early_clock_in_minutes',
             'break_notification_before_seconds',
         ];
-        foreach(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
+
+        foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
             $keys[] = "{$day}_working";
             $keys[] = "{$day}_start_time";
             $keys[] = "{$day}_end_time";
@@ -35,16 +59,17 @@ class SettingController extends Controller
 
         $settings = Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
 
-        return view('setting.work-schedule', compact(
-            'settings'
-        ));
+        return view('setting.work-schedule', compact('settings'));
     }
-    
+
     public function updateWorkSchedule(WorkScheduleRequest $request, UpdateWorkScheduleAction $action)
     {
         try {
             $action->handle($request->validated());
-            return redirect()->route('settings.work-schedule.index')->with('success', 'Work schedule updated successfully.');
+
+            return redirect()
+                ->route('settings.work-schedule.index')
+                ->with('success', 'Work schedule updated successfully.');
         } catch (\Throwable $e) {
             return back()->withInput()->with('error', $e->getMessage());
         }

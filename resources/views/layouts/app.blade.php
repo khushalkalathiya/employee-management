@@ -1,11 +1,23 @@
 <!DOCTYPE html>
 <html class="dark" lang="en">
 
+@php
+    $appName = \App\Models\Setting::getValue('app_name', config('app.name', 'PeopleCore'));
+    $appFavicon = \App\Models\Setting::getValue('app_favicon');
+    $appLogo = \App\Models\Setting::getValue('app_logo');
+@endphp
+
 <head>
     <meta charset="UTF-8" />
     <meta content="width=device-width,initial-scale=1.0" name="viewport" />
     <meta content="{{ csrf_token() }}" name="csrf-token">
-    <title>PeopleCore — Dashboard</title>
+    <title>{{ $appName }} — Dashboard</title>
+    @if ($appFavicon)
+        <link href="{{ $appFavicon }}" rel="icon" type="image/png">
+        <link href="{{ $appFavicon }}" rel="shortcut icon">
+    @else
+        <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">
+    @endif
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link
         href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Manrope:wght@300;400;500;600&display=swap"
@@ -35,16 +47,23 @@
 
             <!-- Logo -->
             <div class="sb-logo">
-                <div class="sb-logo-icon">
-                    <svg fill="white" height="18" viewBox="0 0 24 24" width="18">
-                        <path
-                            d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 15.17 10.33 14 8 14zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
-                    </svg>
-                </div>
+                @if ($appLogo)
+                    <div class="sb-logo-icon" style="background:transparent;padding:0;">
+                        <img alt="{{ $appName }}" src="{{ $appLogo }}"
+                            style="height:32px;width:auto;max-width:36px;object-fit:contain;">
+                    </div>
+                @else
+                    <div class="sb-logo-icon">
+                        <svg fill="white" height="18" viewBox="0 0 24 24" width="18">
+                            <path
+                                d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 3-1.34 3-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 15.17 10.33 14 8 14zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+                        </svg>
+                    </div>
+                @endif
                 <div class="sb-logo-text">
                     <div
                         style="font-family:'Outfit',sans-serif;font-size:14px;font-weight:800;color:var(--text);line-height:1.1">
-                        People<span style="color:#3b82f6">Core</span></div>
+                        {{ $appName }}</div>
                     <div
                         style="font-size:10px;color:var(--muted);font-family:'Outfit',sans-serif;font-weight:600;letter-spacing:.04em">
                         EMS Portal</div>
@@ -112,7 +131,8 @@
 
                 <a class="nav-item {{ request()->routeIs('attendance.*') ? 'active' : '' }}"
                     href="{{ route('attendance.index') }}">
-                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24" width="18">
+                    <span class="nav-icon"><svg fill="currentColor" height="18" viewBox="0 0 24 24"
+                            width="18">
                             <path
                                 d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z" />
                         </svg></span>
@@ -509,11 +529,10 @@
     </div>
 
     <!-- ═══════════════ ATTENDANCE TIMER MODAL (DRAWER) ═══════════════ -->
-    <div class="timer-modal fixed inset-0 z-[9998] hidden bg-black/40 backdrop-blur-sm" id="timerFormModal"
-        style="transition:opacity 0.25s ease;">
-        <div class="timer-drawer absolute right-0 top-0 flex h-full w-full max-w-md flex-col overflow-y-auto border-l border-gray-200 bg-white shadow-2xl dark:border-gray-800 dark:bg-gray-950"
-            id="timerDrawerPanel"
-            style="transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);transform:translateX(100%);">
+    <div class="timer-modal fixed inset-0 z-[9998] hidden bg-black/40 backdrop-blur-sm transition-all duration-300"
+        id="timerFormModal">
+        <div class="timer-drawer absolute right-0 top-0 flex h-full w-full max-w-md flex-col overflow-y-auto border-l border-gray-200 bg-white shadow-2xl transition-transform duration-300 dark:border-gray-800 dark:bg-gray-950"
+            id="timerDrawerPanel" style="transform: translateX(100%);">
 
             <!-- Close button -->
             <div class="absolute right-4 top-4 z-10">
@@ -1099,6 +1118,7 @@
 
 
 
+    @stack('scripts')
     @livewireScriptConfig
 </body>
 

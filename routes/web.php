@@ -113,6 +113,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/general', [SettingController::class, 'general'])->middleware('permission:settings.general.view')->name('general.index');
+        Route::post('/general', [SettingController::class, 'updateGeneral'])->middleware('permission:settings.general.edit')->name('general.update');
         Route::get('/work-schedule', [SettingController::class, 'workSchedule'])->middleware('permission:settings.work_schedule.view')->name('work-schedule.index');
         Route::post('/work-schedule', [SettingController::class, 'updateWorkSchedule'])->middleware('permission:settings.work_schedule.edit')->name('work-schedule.update');
     });
