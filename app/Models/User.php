@@ -63,6 +63,18 @@ class User extends Authenticatable implements HasMedia
         return $this->hasOne(Employee::class);
     }
 
+    public function ensureEmployeeExists(): Employee
+    {
+        $employee = $this->employee;
+        if (!$employee) {
+            $employee = $this->employee()->firstOrCreate([], [
+                'employee_code' => 'EMP-' . str_pad($this->id, 5, '0', STR_PAD_LEFT),
+            ]);
+            $this->setRelation('employee', $employee);
+        }
+        return $employee;
+    }
+
     public function getFullNameAttribute()
     {
         return $this->first_name . ' ' . $this->last_name;

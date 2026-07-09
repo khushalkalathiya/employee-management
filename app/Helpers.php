@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
 if (! function_exists('auth_user')) {
 
@@ -88,5 +90,26 @@ if (! function_exists('currencyFormat')) {
         } catch (\Throwable $e) {
             return '$0.00';
         }
+    }
+}
+
+if (!function_exists('get_work_schedule_settings')) {
+    function get_work_schedule_settings() {
+        return Cache::rememberForever('work_schedule_settings', function () {
+            $keys = [
+                'timing_mode', 'late_allowance_minutes', 'early_clock_in_minutes',
+                'early_clock_out_minutes', 'allow_off_day_attendance',
+                'break_mode', 'break_notification_before_seconds',
+            ];
+            foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
+                $keys[] = "{$day}_working";
+                $keys[] = "{$day}_start_time";
+                $keys[] = "{$day}_end_time";
+                $keys[] = "{$day}_break_enabled";
+                $keys[] = "{$day}_break_start";
+                $keys[] = "{$day}_break_end";
+            }
+            return Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
+        });
     }
 }

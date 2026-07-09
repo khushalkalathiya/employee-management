@@ -38,6 +38,7 @@ class AttendanceControlCard extends Component
         $today = strtolower(now()->format('l')); // e.g. "monday"
 
         $keys = [
+            'timing_mode',
             'late_allowance_minutes',
             'early_clock_in_minutes',
             "{$today}_working",
@@ -49,6 +50,7 @@ class AttendanceControlCard extends Component
 
         $this->scheduleConfig = [
             'today'                       => $today,
+            'timing_mode'                 => $raw['timing_mode'] ?? 'fixed',
             'is_working_day'              => (bool) ($raw["{$today}_working"] ?? false),
             'start_time'                  => $raw["{$today}_start_time"] ?? null,   // "g:i A" format, e.g. "9:00 AM"
             'end_time'                    => $raw["{$today}_end_time"] ?? null,

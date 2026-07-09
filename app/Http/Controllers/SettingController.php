@@ -43,8 +43,12 @@ class SettingController extends Controller
     public function workSchedule()
     {
         $keys = [
+            'timing_mode',
             'late_allowance_minutes',
             'early_clock_in_minutes',
+            'early_clock_out_minutes',
+            'allow_off_day_attendance',
+            'break_mode',
             'break_notification_before_seconds',
         ];
 

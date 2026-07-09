@@ -75,6 +75,7 @@ class EmployeeController extends Controller
 
     public function editPersonalDetails(User $user)
     {
+        $user->ensureEmployeeExists();
         $user->load('employee');
         $departments = \App\Models\Department::pluck('name', 'id');
         $designations = \App\Models\Designation::pluck('name', 'id');
@@ -99,6 +100,7 @@ class EmployeeController extends Controller
 
     public function editFamilyInformation(User $user)
     {
+        $user->ensureEmployeeExists();
         $user->load('employee.familyInformation');
         $section = 'family-information';
         return view('employees.edit', compact('user', 'section'));
@@ -119,6 +121,7 @@ class EmployeeController extends Controller
 
     public function editBankAccount(User $user)
     {
+        $user->ensureEmployeeExists();
         $user->load('employee.bankAccount');
         $bankAccount = $user->employee ? $user->employee->bankAccount : null;
         $section = 'bank-account';
@@ -140,6 +143,7 @@ class EmployeeController extends Controller
 
     public function editDocuments(User $user)
     {
+        $user->ensureEmployeeExists();
         $user->load('employee');
         $section = 'documents';
         return view('employees.edit', compact('user', 'section'));
@@ -204,6 +208,7 @@ class EmployeeController extends Controller
 
     public function editEducation(User $user)
     {
+        $user->ensureEmployeeExists();
         $user->load('employee');
         $section = 'education';
         return view('employees.edit', compact('user', 'section'));
@@ -259,6 +264,7 @@ class EmployeeController extends Controller
 
     public function editExperience(User $user)
     {
+        $user->ensureEmployeeExists();
         $user->load('employee');
         $experiences = $user->employee ? $user->employee->experiences : collect();
         $section = 'experience';
@@ -315,6 +321,7 @@ class EmployeeController extends Controller
 
     public function editAssets(User $user)
     {
+        $user->ensureEmployeeExists();
         $user->load('employee');
         $assets = $user->employee ? $user->employee->assets : collect();
         $section = 'assets';

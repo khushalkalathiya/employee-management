@@ -13,11 +13,17 @@ class WorkScheduleRequest extends FormRequest
 
     public function rules(): array
     {
-        // dd(request()->all());
+        $timingMode = $this->input('timing_mode');
+        $breakMode = $this->input('break_mode');
+
         $rules = [
+            'timing_mode'                        => ['required', 'in:fixed,flexible'],
+            'break_mode'                         => ['required', 'in:fixed,flexible'],
             'late_allowance_minutes'             => ['required', 'integer', 'min:0'],
-            'early_clock_in_minutes'             => ['required', 'integer', 'min:0'],
-            'break_notification_before_seconds'  => ['required', 'integer', 'min:0'],
+            'early_clock_in_minutes'             => [$timingMode === 'fixed' ? 'required' : 'nullable', 'integer', 'min:0'],
+            'early_clock_out_minutes'            => [$timingMode === 'fixed' ? 'required' : 'nullable', 'integer', 'min:0'],
+            'allow_off_day_attendance'           => ['nullable', 'boolean'],
+            'break_notification_before_seconds'  => [$breakMode === 'fixed' ? 'required' : 'nullable', 'integer', 'min:0'],
         ];
 
         $days = [
@@ -31,12 +37,22 @@ class WorkScheduleRequest extends FormRequest
         ];
 
         foreach ($days as $day) {
-            $rules["{$day}_working"] = [ 'nullable', 'boolean'];
-            $rules["{$day}_start_time"] = ["required_if:{$day}_working,1", 'nullable', 'date_format:g:i A'];
-            $rules["{$day}_end_time"] = ["required_if:{$day}_working,1", 'nullable', 'date_format:g:i A'];
+            $rules["{$day}_working"] = ['nullable', 'boolean'];
+            if ($timingMode === 'fixed') {
+                $rules["{$day}_start_time"] = ["required_if:{$day}_working,1", 'nullable', 'date_format:g:i A'];
+                $rules["{$day}_end_time"] = ["required_if:{$day}_working,1", 'nullable', 'date_format:g:i A'];
+            } else {
+                $rules["{$day}_start_time"] = ['nullable', 'date_format:g:i A'];
+                $rules["{$day}_end_time"] = ['nullable', 'date_format:g:i A'];
+            }
             $rules["{$day}_break_enabled"] = ['nullable', 'boolean'];
-            $rules["{$day}_break_start"] = ["required_if:{$day}_break_enabled,1", 'nullable', 'date_format:g:i A'];
-            $rules["{$day}_break_end"] = ["required_if:{$day}_break_enabled,1", 'nullable', 'date_format:g:i A'];
+            if ($breakMode === 'fixed') {
+                $rules["{$day}_break_start"] = ["required_if:{$day}_break_enabled,1", 'nullable', 'date_format:g:i A'];
+                $rules["{$day}_break_end"] = ["required_if:{$day}_break_enabled,1", 'nullable', 'date_format:g:i A'];
+            } else {
+                $rules["{$day}_break_start"] = ['nullable', 'date_format:g:i A'];
+                $rules["{$day}_break_end"] = ['nullable', 'date_format:g:i A'];
+            }
         }
 
         return $rules;
@@ -129,8 +145,12 @@ class WorkScheduleRequest extends FormRequest
     public function attributes(): array
     {
         return [
+            'timing_mode'                       => 'timing mode',
+            'break_mode'                        => 'break mode',
             'late_allowance_minutes'            => 'late allowance minutes',
             'early_clock_in_minutes'            => 'early clock in minutes',
+            'early_clock_out_minutes'           => 'early clock out minutes',
+            'allow_off_day_attendance'          => 'allow off-day attendance',
             'break_notification_before_seconds' => 'break notification before seconds',
         ];
     }

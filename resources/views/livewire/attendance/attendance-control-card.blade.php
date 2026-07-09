@@ -313,6 +313,7 @@
                  */
                 canClockIn() {
                     if (!this.schedule.is_working_day) return false;
+                    if (this.schedule.timing_mode === 'flexible') return true;
 
                     const startTime = this.parseShiftTime(this.schedule.start_time);
                     if (!startTime) return true; // no schedule configured → allow
@@ -328,6 +329,8 @@
                  * (current time > shift start + late_allowance_minutes).
                  */
                 isLate() {
+                    if (this.schedule.timing_mode === 'flexible') return false;
+
                     const startTime = this.parseShiftTime(this.schedule.start_time);
                     if (!startTime) return false;
 
@@ -342,6 +345,7 @@
                  */
                 clockInHintText() {
                     if (!this.schedule.is_working_day) return 'No scheduled work today.';
+                    if (this.schedule.timing_mode === 'flexible') return 'Flexible Shift — Clock in anytime.';
                     if (!this.schedule.start_time) return '';
 
                     if (this.canClockIn()) {
@@ -363,6 +367,7 @@
 
                 clockInHintStyle() {
                     if (!this.schedule.is_working_day) return 'color:#9ca3af';
+                    if (this.schedule.timing_mode === 'flexible') return 'color:#10b981';
                     if (!this.canClockIn()) return 'color:#ef4444';
                     if (this.isLate()) return 'color:#f59e0b';
                     return 'color:#10b981';

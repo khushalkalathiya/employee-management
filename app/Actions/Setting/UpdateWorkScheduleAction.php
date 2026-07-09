@@ -17,18 +17,38 @@ class UpdateWorkScheduleAction
         DB::transaction(function () use ($data) {
 
             Setting::updateOrCreate(
+                ['key' => 'timing_mode'],
+                ['value' => $data['timing_mode']]
+            );
+
+            Setting::updateOrCreate(
+                ['key' => 'break_mode'],
+                ['value' => $data['break_mode']]
+            );
+
+            Setting::updateOrCreate(
                 ['key' => 'late_allowance_minutes'],
                 ['value' => $data['late_allowance_minutes']]
             );
 
             Setting::updateOrCreate(
                 ['key' => 'early_clock_in_minutes'],
-                ['value' => $data['early_clock_in_minutes']]
+                ['value' => $data['early_clock_in_minutes'] ?? null]
+            );
+
+            Setting::updateOrCreate(
+                ['key' => 'early_clock_out_minutes'],
+                ['value' => $data['early_clock_out_minutes'] ?? null]
+            );
+
+            Setting::updateOrCreate(
+                ['key' => 'allow_off_day_attendance'],
+                ['value' => (bool) ($data['allow_off_day_attendance'] ?? false)]
             );
 
             Setting::updateOrCreate(
                 ['key' => 'break_notification_before_seconds'],
-                ['value' => $data['break_notification_before_seconds']]
+                ['value' => $data['break_notification_before_seconds'] ?? null]
             );
 
             $days = [
@@ -82,5 +102,6 @@ class UpdateWorkScheduleAction
         });
 
         Cache::forget('settings');
+        Cache::forget('work_schedule_settings');
     }
 }

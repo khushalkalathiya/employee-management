@@ -45,7 +45,56 @@
                             Attendance Rules
                         </h2>
 
-                        <div class="grid gap-5 md:grid-cols-3">
+                        <div class="mb-6 grid gap-5 md:grid-cols-2">
+                            <!-- Fixed Timing Mode Toggle -->
+                            <div
+                                class="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-950/20">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">Fixed Timing
+                                        Mode</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">Enable to enforce daily
+                                        start/end
+                                        shift hours, late check-ins, and early clock-in limits. Disable for flexible
+                                        timing.</span>
+                                </div>
+                                <label class="inline-flex cursor-pointer items-center">
+                                    <input @checked((old('timing_mode') ?? ($settings['timing_mode'] ?? 'fixed')) === 'fixed') class="peer sr-only" id="timingModeToggle"
+                                        onchange="toggleTimingMode(this.checked)" type="checkbox" value="1">
+                                    <div
+                                        class="peer relative h-6 w-11 rounded-full bg-gray-300 transition-all after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full dark:bg-gray-700 dark:peer-checked:bg-blue-500">
+                                    </div>
+                                </label>
+                                <!-- Hidden input to submit timing_mode value -->
+                                <input id="timingModeValue" name="timing_mode" type="hidden"
+                                    value="{{ old('timing_mode') ?? ($settings['timing_mode'] ?? 'fixed') }}">
+                            </div>
+
+                            <!-- Fixed Break Mode Toggle -->
+                            <div
+                                class="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-950/20">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-semibold text-gray-900 dark:text-white">Fixed Break
+                                        Mode</span>
+                                    <span class="text-xs text-gray-500 dark:text-gray-400">Enable to enforce daily
+                                        scheduled
+                                        break start/end times and notification warnings. Disable for flexible
+                                        breaks.</span>
+                                </div>
+                                <label class="inline-flex cursor-pointer items-center">
+                                    <input @checked((old('break_mode') ?? ($settings['break_mode'] ?? 'fixed')) === 'fixed') class="peer sr-only" id="breakModeToggle"
+                                        onchange="toggleBreakMode(this.checked)" type="checkbox" value="1">
+                                    <div
+                                        class="peer relative h-6 w-11 rounded-full bg-gray-300 transition-all after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full dark:bg-gray-700 dark:peer-checked:bg-blue-500">
+                                    </div>
+                                </label>
+                                <!-- Hidden input to submit break_mode value -->
+                                <input id="breakModeValue" name="break_mode" type="hidden"
+                                    value="{{ old('break_mode') ?? ($settings['break_mode'] ?? 'fixed') }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-6 grid gap-5 md:grid-cols-2">
+                            <!-- Late Allowance (Always Displayed) -->
                             <div>
                                 <label class="field-label">
                                     Late Allowance in Min
@@ -57,13 +106,18 @@
                                     <span class="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-gray-400">
                                         Min
                                     </span>
-                                    @error('late_allowance_minutes')
-                                        <p class="err-msg">{{ $message }}</p>
-                                    @enderror
                                 </div>
+                                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                                    If you add 0, the system will not ask for a late reason. If greater than 0, a late
+                                    reason modal is required on clock-in on a working day.
+                                </p>
+                                @error('late_allowance_minutes')
+                                    <p class="err-msg">{{ $message }}</p>
+                                @enderror
                             </div>
 
-                            <div>
+                            <!-- Early Clock In Min (Conditional: Fixed Timing Only) -->
+                            <div class="timing-rule-fixed">
                                 <label class="field-label">
                                     Early Clock In Min
                                     <span class="text-red-400">*</span>
@@ -75,37 +129,113 @@
                                     <span class="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-gray-400">
                                         Min
                                     </span>
-                                    @error('early_clock_in_minutes')
-                                        <p class="err-msg">{{ $message }}</p>
-                                    @enderror
                                 </div>
                                 <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
                                     How many minutes before shift start an employee can clock in.
                                 </p>
+                                @error('early_clock_in_minutes')
+                                    <p class="err-msg">{{ $message }}</p>
+                                @enderror
                             </div>
 
-                            <div>
+                            <!-- Early Clock Out Min (Conditional: Fixed Timing Only) -->
+                            <div class="timing-rule-fixed">
+                                <label class="field-label">
+                                    Early Clock Out Min
+                                    <span class="text-red-400">*</span>
+                                </label>
+                                <div class="field-wrap relative">
+                                    <input class="field-input" min="0" name="early_clock_out_minutes"
+                                        type="number"
+                                        value="{{ old('early_clock_out_minutes') ?? ($settings['early_clock_out_minutes'] ?? 15) }}">
+                                    <span class="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                                        Min
+                                    </span>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                                    How many minutes before shift end an employee can clock out.
+                                </p>
+                                @error('early_clock_out_minutes')
+                                    <p class="err-msg">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <!-- Break Notification Before (sec) (Conditional: Fixed Break Mode Only) -->
+                            <div class="break-rule-fixed">
                                 <label class="field-label">
                                     Break Notification Before (sec)
                                     <span class="text-red-400">*</span>
                                 </label>
                                 <div class="field-wrap relative">
-                                    <input class="field-input" min="0" name="break_notification_before_seconds"
-                                        type="number"
+                                    <input class="field-input" min="0"
+                                        name="break_notification_before_seconds" type="number"
                                         value="{{ old('break_notification_before_seconds') ?? ($settings['break_notification_before_seconds'] ?? 60) }}">
                                     <span class="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-gray-400">
                                         Sec
                                     </span>
-                                    @error('break_notification_before_seconds')
-                                        <p class="err-msg">{{ $message }}</p>
-                                    @enderror
                                 </div>
                                 <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
                                     Seconds before break start time to trigger the countdown notification.
                                 </p>
+                                @error('break_notification_before_seconds')
+                                    <p class="err-msg">{{ $message }}</p>
+                                @enderror
                             </div>
                         </div>
+
+                        <!-- Allow Off Day Attendance Toggle -->
+                        <div
+                            class="flex items-center justify-between rounded-2xl border border-gray-200 bg-gray-50/50 p-4 dark:border-gray-800 dark:bg-gray-950/20">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">Allow Off-Day
+                                    Attendance</span>
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Controls whether employees can
+                                    clock in on weekends/holidays/non-scheduled days.</span>
+                            </div>
+                            <label class="inline-flex cursor-pointer items-center">
+                                <input @checked(old('allow_off_day_attendance', $settings['allow_off_day_attendance'] ?? false)) class="peer sr-only"
+                                    name="allow_off_day_attendance" type="checkbox" value="1">
+                                <div
+                                    class="peer relative h-6 w-11 rounded-full bg-gray-300 transition-all after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:bg-blue-600 peer-checked:after:translate-x-full dark:bg-gray-700 dark:peer-checked:bg-blue-500">
+                                </div>
+                            </label>
+                        </div>
                     </div>
+
+                    <script>
+                        function toggleTimingMode(isFixed) {
+                            const fixedFields = document.querySelectorAll('.timing-rule-fixed');
+                            const hiddenInput = document.getElementById('timingModeValue');
+                            hiddenInput.value = isFixed ? 'fixed' : 'flexible';
+                            fixedFields.forEach(f => {
+                                if (isFixed) {
+                                    f.classList.remove('hidden');
+                                } else {
+                                    f.classList.add('hidden');
+                                }
+                            });
+                        }
+
+                        function toggleBreakMode(isFixed) {
+                            const fixedFields = document.querySelectorAll('.break-rule-fixed');
+                            const hiddenInput = document.getElementById('breakModeValue');
+                            hiddenInput.value = isFixed ? 'fixed' : 'flexible';
+                            fixedFields.forEach(f => {
+                                if (isFixed) {
+                                    f.classList.remove('hidden');
+                                } else {
+                                    f.classList.add('hidden');
+                                }
+                            });
+                        }
+
+                        document.addEventListener('DOMContentLoaded', function() {
+                            const timingToggle = document.getElementById('timingModeToggle');
+                            const breakToggle = document.getElementById('breakModeToggle');
+                            toggleTimingMode(timingToggle.checked);
+                            toggleBreakMode(breakToggle.checked);
+                        });
+                    </script>
 
                     <!-- Work Schedule -->
                     <div
@@ -152,8 +282,8 @@
                                                 <label class="field-label">Start Time</label>
                                                 <div class="field-wrap relative">
                                                     <input class="field-input js-time-picker"
-                                                        name="{{ $day }}_start_time" placeholder="Start Time"
-                                                        type="time"
+                                                        name="{{ $day }}_start_time"
+                                                        placeholder="Start Time" type="time"
                                                         value="{{ convertTimeTo24HourFormat(old($day . '_start_time', $settings[$day . '_start_time'] ?? '')) }}">
                                                 </div>
                                                 @error($day . '_start_time')
