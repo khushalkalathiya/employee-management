@@ -48,7 +48,12 @@ class UpdateWorkScheduleAction
 
             Setting::updateOrCreate(
                 ['key' => 'break_notification_before_seconds'],
-                ['value' => $data['break_notification_before_seconds'] ?? null]
+                ['value' => $data['break_mode'] === 'fixed' ? ($data['break_notification_before_seconds'] ?? null) : null]
+            );
+
+            Setting::updateOrCreate(
+                ['key' => 'early_break_out_minutes'],
+                ['value' => $data['break_mode'] === 'fixed' ? ($data['early_break_out_minutes'] ?? null) : null]
             );
 
             $days = [
@@ -72,13 +77,22 @@ class UpdateWorkScheduleAction
 
                 $breakStart = $data["{$day}_break_start"] ?? null;
                 $breakEnd = $data["{$day}_break_end"] ?? null;
+                $breakTime = isset($data["{$day}_break_time"]) ? (int) $data["{$day}_break_time"] : null;
 
                 $requiredMinutes = 0;
 
                 if ($working && $startTime && $endTime) {
                     $requiredMinutes = Carbon::parse($endTime)->diffInMinutes(Carbon::parse($startTime));
-                    if ($breakEnabled && $breakStart && $breakEnd) {
-                        $requiredMinutes -= Carbon::parse($breakEnd)->diffInMinutes(Carbon::parse($breakStart));
+                    if ($breakEnabled) {
+                        if ($data['break_mode'] === 'fixed') {
+                            if ($breakStart && $breakEnd) {
+                                $requiredMinutes -= Carbon::parse($breakEnd)->diffInMinutes(Carbon::parse($breakStart));
+                            }
+                        } else {
+                            if ($breakTime) {
+                                $requiredMinutes -= $breakTime;
+                            }
+                        }
                     }
                 }
 
@@ -87,8 +101,9 @@ class UpdateWorkScheduleAction
                     "{$day}_start_time"      => $startTime,
                     "{$day}_end_time"        => $endTime,
                     "{$day}_break_enabled"   => $breakEnabled,
-                    "{$day}_break_start"     => $breakStart,
-                    "{$day}_break_end"       => $breakEnd,
+                    "{$day}_break_start"     => $data['break_mode'] === 'fixed' ? $breakStart : null,
+                    "{$day}_break_end"       => $data['break_mode'] === 'fixed' ? $breakEnd : null,
+                    "{$day}_break_time"      => $data['break_mode'] === 'flexible' ? $breakTime : null,
                     "{$day}_required_minutes" => $requiredMinutes,
                 ];
 

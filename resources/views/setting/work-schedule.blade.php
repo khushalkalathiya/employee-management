@@ -38,8 +38,7 @@
                     </h1>
 
                     <!-- Attendance Settings -->
-                    <div
-                        class="mb-6 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                    <div class="mb-6 rounded-3xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
 
                         <h2 class="mb-5 text-lg font-semibold text-gray-900 dark:text-white">
                             Attendance Rules
@@ -93,28 +92,29 @@
                             </div>
                         </div>
 
-                        <div class="mb-6 grid gap-5 md:grid-cols-2">
-                            <!-- Late Allowance (Always Displayed) -->
-                            <div>
-                                <label class="field-label">
-                                    Late Allowance in Min
-                                    <span class="text-red-400">*</span>
-                                </label>
-                                <div class="field-wrap relative">
-                                    <input class="field-input" name="late_allowance_minutes" type="number"
-                                        value="{{ old('late_allowance_minutes') ?? ($settings['late_allowance_minutes'] ?? 10) }}">
-                                    <span class="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-gray-400">
-                                        Min
-                                    </span>
-                                </div>
-                                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
-                                    If you add 0, the system will not ask for a late reason. If greater than 0, a late
-                                    reason modal is required on clock-in on a working day.
-                                </p>
-                                @error('late_allowance_minutes')
-                                    <p class="err-msg">{{ $message }}</p>
-                                @enderror
+                        <!-- Late Allowance (Always Displayed) -->
+                        <div class="mb-6">
+                            <label class="field-label">
+                                Late Allowance in Min
+                                <span class="text-red-400">*</span>
+                            </label>
+                            <div class="field-wrap relative">
+                                <input class="field-input" name="late_allowance_minutes" type="number"
+                                    value="{{ old('late_allowance_minutes') ?? ($settings['late_allowance_minutes'] ?? 10) }}">
+                                <span class="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                                    Min
+                                </span>
                             </div>
+                            <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                                If you add 0, the system will not ask for a late reason. If greater than 0, a late
+                                reason modal is required on clock-in on a working day.
+                            </p>
+                            @error('late_allowance_minutes')
+                                <p class="err-msg">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-6 grid gap-5 md:grid-cols-2">
 
                             <!-- Early Clock In Min (Conditional: Fixed Timing Only) -->
                             <div class="timing-rule-fixed">
@@ -181,6 +181,28 @@
                                     <p class="err-msg">{{ $message }}</p>
                                 @enderror
                             </div>
+
+                            <!-- Early Break Out (min) (Conditional: Fixed Break Mode Only) -->
+                            <div class="break-rule-fixed">
+                                <label class="field-label">
+                                    Early Break Out (min)
+                                    <span class="text-red-400">*</span>
+                                </label>
+                                <div class="field-wrap relative">
+                                    <input class="field-input" min="0"
+                                        name="early_break_out_minutes" type="number"
+                                        value="{{ old('early_break_out_minutes') ?? ($settings['early_break_out_minutes'] ?? 0) }}">
+                                    <span class="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                                        Min
+                                    </span>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                                    How many minutes before break end an employee can clock back in from break early.
+                                </p>
+                                @error('early_break_out_minutes')
+                                    <p class="err-msg">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
 
                         <!-- Allow Off Day Attendance Toggle -->
@@ -225,6 +247,41 @@
                                     f.classList.remove('hidden');
                                 } else {
                                     f.classList.add('hidden');
+                                }
+                            });
+
+                            const dayBreakFixed = document.querySelectorAll('.day-break-fixed');
+                            const dayBreakFlexible = document.querySelectorAll('.day-break-flexible');
+                            dayBreakFixed.forEach(f => {
+                                if (isFixed) {
+                                    f.classList.remove('hidden');
+                                } else {
+                                    f.classList.add('hidden');
+                                }
+                            });
+                            dayBreakFlexible.forEach(f => {
+                                if (isFixed) {
+                                    f.classList.add('hidden');
+                                } else {
+                                    f.classList.remove('hidden');
+                                }
+                            });
+
+                            // Recalculate heights of open break sections
+                            document.querySelectorAll('.js-break-toggle').forEach(toggle => {
+                                if (toggle.checked) {
+                                    const breakSection = document.getElementById(toggle.dataset.day + 'Schedule')?.querySelector('.js-break-section');
+                                    if (breakSection) {
+                                        breakSection.style.maxHeight = 'none';
+                                        breakSection.style.maxHeight = breakSection.scrollHeight + 'px';
+                                    }
+                                }
+                            });
+
+                            // Trigger summary update for all days
+                            ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].forEach(day => {
+                                if (window.updateSummary) {
+                                    window.updateSummary(day);
                                 }
                             });
                         }
@@ -328,7 +385,7 @@
 
                                         <div class="js-break-section grid gap-4 md:grid-cols-2"
                                             style="{{ old($day . '_break_enabled', $settings[$day . '_break_enabled'] ?? false) ? 'max-height:auto;opacity:1;' : 'max-height:0px;opacity:0;' }}">
-                                            <div class="mt-4">
+                                            <div class="day-break-fixed mt-4">
                                                 <label class="field-label">Break Start Time</label>
                                                 <div class="field-wrap relative">
                                                     <input class="field-input js-time-picker"
@@ -340,7 +397,7 @@
                                                     <p class="err-msg">{{ $message }}</p>
                                                 @enderror
                                             </div>
-                                            <div class="md:mt-4">
+                                            <div class="day-break-fixed md:mt-4">
                                                 <label class="field-label">Break End Time</label>
                                                 <div class="field-wrap relative">
                                                     <input class="field-input js-time-picker"
@@ -349,6 +406,21 @@
                                                         value="{{ convertTimeTo24HourFormat(old($day . '_break_end', $settings[$day . '_break_end'] ?? '')) }}">
                                                 </div>
                                                 @error($day . '_break_end')
+                                                    <p class="err-msg">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+                                            <div class="day-break-flexible mt-4 col-span-2 md:col-span-1">
+                                                <label class="field-label">Break Time (min)</label>
+                                                <div class="field-wrap relative">
+                                                    <input class="field-input" min="0"
+                                                        name="{{ $day }}_break_time"
+                                                        placeholder="Break Time (min)" type="number"
+                                                        value="{{ old($day . '_break_time') ?? ($settings[$day . '_break_time'] ?? '') }}">
+                                                    <span class="absolute right-10 top-1/2 -translate-y-1/2 text-xs text-gray-400">
+                                                        Min
+                                                    </span>
+                                                </div>
+                                                @error($day . '_break_time')
                                                     <p class="err-msg">{{ $message }}</p>
                                                 @enderror
                                             </div>

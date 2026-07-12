@@ -100,6 +100,7 @@ if (!function_exists('get_work_schedule_settings')) {
                 'timing_mode', 'late_allowance_minutes', 'early_clock_in_minutes',
                 'early_clock_out_minutes', 'allow_off_day_attendance',
                 'break_mode', 'break_notification_before_seconds',
+                'early_break_out_minutes',
             ];
             foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
                 $keys[] = "{$day}_working";
@@ -108,6 +109,7 @@ if (!function_exists('get_work_schedule_settings')) {
                 $keys[] = "{$day}_break_enabled";
                 $keys[] = "{$day}_break_start";
                 $keys[] = "{$day}_break_end";
+                $keys[] = "{$day}_break_time";
             }
             return Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();
         });

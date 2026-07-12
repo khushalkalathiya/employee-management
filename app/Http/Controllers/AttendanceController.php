@@ -100,12 +100,14 @@ class AttendanceController extends Controller
                 'late_allowance_minutes',
                 'early_clock_in_minutes',
                 'break_notification_before_seconds',
+                'early_break_out_minutes',
                 "{$today}_working",
                 "{$today}_start_time",
                 "{$today}_end_time",
                 "{$today}_break_enabled",
                 "{$today}_break_start",
                 "{$today}_break_end",
+                "{$today}_break_time",
             ];
 
             $raw = \App\Models\Setting::whereIn('key', $scheduleKeys)
@@ -120,9 +122,11 @@ class AttendanceController extends Controller
                 'break_enabled'                      => (bool)  ($raw["{$today}_break_enabled"] ?? false),
                 'break_start'                        =>          $raw["{$today}_break_start"]   ?? null,
                 'break_end'                          =>          $raw["{$today}_break_end"]     ?? null,
+                'break_time'                         => (int)   ($raw["{$today}_break_time"]    ?? 0),
                 'late_allowance_minutes'             => (int)   ($raw['late_allowance_minutes']            ?? 10),
                 'early_clock_in_minutes'             => (int)   ($raw['early_clock_in_minutes']            ?? 15),
                 'break_notification_before_seconds'  => (int)   ($raw['break_notification_before_seconds'] ?? 60),
+                'early_break_out_minutes'            => (int)   ($raw['early_break_out_minutes']            ?? 0),
             ];
             // ───────────────────────────────────────────────────────────────
 

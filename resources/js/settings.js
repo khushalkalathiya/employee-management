@@ -4,8 +4,10 @@ window.updateSummary = function (day) {
 
     const breakEnabled = document.querySelector(`[name="${day}_break_enabled"]`)?.checked;
     const breakStart = document.querySelector(`[name="${day}_break_start"]`)?.value;
-
     const breakEnd = document.querySelector(`[name="${day}_break_end"]`)?.value;
+    const breakTimeInput = document.querySelector(`[name="${day}_break_time"]`);
+    const breakTime = breakTimeInput ? parseInt(breakTimeInput.value, 10) : 0;
+    const breakMode = document.getElementById('breakModeValue')?.value || 'fixed';
 
     const summary = document.querySelector(`.js-summary[data-day="${day}"]`);
 
@@ -20,11 +22,21 @@ window.updateSummary = function (day) {
 
     let text = `Working Time: ${formatMinutes(working)}`;
 
-    if (breakEnabled && breakStart && breakEnd) {
-        const breakMinutes = timeToMinutes(breakEnd) - timeToMinutes(breakStart);
-        const required = working - breakMinutes;
-        text += ` • Break: ${formatMinutes(breakMinutes)}`;
-        text += ` • Required: ${formatMinutes(required)}`;
+    if (breakEnabled) {
+        let breakMinutes = 0;
+        if (breakMode === 'fixed') {
+            if (breakStart && breakEnd) {
+                breakMinutes = timeToMinutes(breakEnd) - timeToMinutes(breakStart);
+            }
+        } else {
+            breakMinutes = isNaN(breakTime) ? 0 : breakTime;
+        }
+
+        if (breakMinutes > 0) {
+            const required = working - breakMinutes;
+            text += ` • Break: ${formatMinutes(breakMinutes)}`;
+            text += ` • Required: ${formatMinutes(required)}`;
+        }
     }
 
     summary.textContent = text;
@@ -94,6 +106,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 target.style.maxHeight = '0px';
                 target.style.opacity = '0';
             }
+        });
+    });
+
+    document.querySelectorAll('[name$="_break_time"]').forEach(input => {
+        input.addEventListener('input', () => {
+            const day = input.name.split('_')[0];
+            updateSummary(day);
         });
     });
 
