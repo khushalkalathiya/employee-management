@@ -25,6 +25,7 @@ class WorkScheduleRequest extends FormRequest
             'allow_off_day_attendance'           => ['nullable', 'boolean'],
             'break_notification_before_seconds'  => [$breakMode === 'fixed' ? 'required' : 'nullable', 'integer', 'min:0'],
             'early_break_out_minutes'            => [$breakMode === 'fixed' ? 'required' : 'nullable', 'integer', 'min:0'],
+            'break_time_minutes'                 => [$breakMode === 'flexible' ? 'required' : 'nullable', 'integer', 'min:0'],
         ];
 
         $days = [
@@ -50,11 +51,9 @@ class WorkScheduleRequest extends FormRequest
             if ($breakMode === 'fixed') {
                 $rules["{$day}_break_start"] = ["required_if:{$day}_break_enabled,1", 'nullable', 'date_format:g:i A'];
                 $rules["{$day}_break_end"] = ["required_if:{$day}_break_enabled,1", 'nullable', 'date_format:g:i A'];
-                $rules["{$day}_break_time"] = ['nullable', 'integer', 'min:0'];
             } else {
                 $rules["{$day}_break_start"] = ['nullable', 'date_format:g:i A'];
                 $rules["{$day}_break_end"] = ['nullable', 'date_format:g:i A'];
-                $rules["{$day}_break_time"] = ["required_if:{$day}_break_enabled,1", 'nullable', 'integer', 'min:0'];
             }
         }
 
@@ -79,7 +78,6 @@ class WorkScheduleRequest extends FormRequest
             $messages["{$day}_end_time.required_if"] = "End time is required when working day is enabled.";
             $messages["{$day}_break_start.required_if"] = "Break start time is required when break is enabled.";
             $messages["{$day}_break_end.required_if"] = "Break end time is required when break is enabled.";
-            $messages["{$day}_break_time.required_if"] = "Break time is required when break is enabled.";
         }
 
         return $messages;
@@ -144,13 +142,13 @@ class WorkScheduleRequest extends FormRequest
                 }
 
                 if ($breakMode === 'flexible') {
-                    $breakTime = (int) $this->input("{$day}_break_time");
-                    if ($start && $end) {
+                    $breakTime = (int) $this->input('break_time_minutes');
+                    if ($start && $end && $breakTime) {
                         $workingMinutes = (strtotime($end) - strtotime($start)) / 60;
                         if ($breakTime >= $workingMinutes) {
                             $validator->errors()->add(
-                                "{$day}_break_time",
-                                ucfirst($day) . ' break time must be less than working hours.'
+                                'break_time_minutes',
+                                ucfirst($day) . ' working hours must exceed the global break time.'
                             );
                         }
                     }
@@ -170,6 +168,7 @@ class WorkScheduleRequest extends FormRequest
             'allow_off_day_attendance'          => 'allow off-day attendance',
             'break_notification_before_seconds' => 'break notification before seconds',
             'early_break_out_minutes'           => 'early break out minutes',
+            'break_time_minutes'                => 'break time minutes',
         ];
     }
 

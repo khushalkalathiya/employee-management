@@ -51,6 +51,7 @@ class SettingController extends Controller
             'break_mode',
             'break_notification_before_seconds',
             'early_break_out_minutes',
+            'break_time_minutes',
         ];
 
         foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as $day) {
@@ -60,7 +61,6 @@ class SettingController extends Controller
             $keys[] = "{$day}_break_enabled";
             $keys[] = "{$day}_break_start";
             $keys[] = "{$day}_break_end";
-            $keys[] = "{$day}_break_time";
         }
 
         $settings = Setting::whereIn('key', $keys)->pluck('value', 'key')->toArray();

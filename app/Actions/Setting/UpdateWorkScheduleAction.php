@@ -56,6 +56,11 @@ class UpdateWorkScheduleAction
                 ['value' => $data['break_mode'] === 'fixed' ? ($data['early_break_out_minutes'] ?? null) : null]
             );
 
+            Setting::updateOrCreate(
+                ['key' => 'break_time_minutes'],
+                ['value' => $data['break_mode'] === 'flexible' ? ($data['break_time_minutes'] ?? null) : null]
+            );
+
             $days = [
                 'monday',
                 'tuesday',
@@ -77,7 +82,7 @@ class UpdateWorkScheduleAction
 
                 $breakStart = $data["{$day}_break_start"] ?? null;
                 $breakEnd = $data["{$day}_break_end"] ?? null;
-                $breakTime = isset($data["{$day}_break_time"]) ? (int) $data["{$day}_break_time"] : null;
+                $breakTime = isset($data['break_time_minutes']) ? (int) $data['break_time_minutes'] : null;
 
                 $requiredMinutes = 0;
 
@@ -103,7 +108,6 @@ class UpdateWorkScheduleAction
                     "{$day}_break_enabled"   => $breakEnabled,
                     "{$day}_break_start"     => $data['break_mode'] === 'fixed' ? $breakStart : null,
                     "{$day}_break_end"       => $data['break_mode'] === 'fixed' ? $breakEnd : null,
-                    "{$day}_break_time"      => $data['break_mode'] === 'flexible' ? $breakTime : null,
                     "{$day}_required_minutes" => $requiredMinutes,
                 ];
 
